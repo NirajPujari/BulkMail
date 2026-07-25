@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "git": "powershell -ExecutionPolicy Bypass -File ./scripts/git.ps1",
+    "db": "powershell -ExecutionPolicy Bypass -File ./scripts/prisma.ps1"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

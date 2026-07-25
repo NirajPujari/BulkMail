@@ -48,6 +48,4 @@ next-env.d.ts
 .windsurf
 
 # git
-*.txt
-*.bat
-*.ps1
+scripts/temp/
