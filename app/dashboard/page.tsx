@@ -6,12 +6,11 @@ import { fetchRequest } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { Campaign } from "@/types/campaign";
+import { Campaign, RecipientVariableItem } from "@/types/campaign";
 import { StatsCards } from "./components/StatsCards";
 import { CampaignComposer } from "./components/CampaignComposer";
 import { CampaignHistory } from "./components/CampaignHistory";
 import { CampaignSimulator } from "./components/CampaignSimulator";
-import { RecipientVariableItem } from "@/lib/email/template";
 
 export default function Dashboard() {
   const { user, refreshUser } = useAuth();
@@ -80,8 +79,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (user?.userId) {
-      setSenderEmail(user.email);
-      fetchCampaigns();
+      const setEmail = () => {
+        setSenderEmail(user.email);
+        fetchCampaigns();
+      };
+      setEmail();
     }
   }, [user?.userId]);
 

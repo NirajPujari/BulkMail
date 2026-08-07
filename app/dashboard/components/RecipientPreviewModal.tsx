@@ -73,7 +73,7 @@ export function RecipientPreviewModal({
             <select
               value={selectedIndex}
               onChange={(e) => setSelectedIndex(Number(e.target.value))}
-              className="bg-zinc-900 border border-zinc-700 text-sm text-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer min-w-[280px]"
+              className="bg-zinc-900 border border-zinc-700 text-sm text-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer min-w-70"
             >
               {recipients.map((rcp, idx) => (
                 <option key={idx} value={idx}>
@@ -146,7 +146,7 @@ export function RecipientPreviewModal({
               <FileText className="h-3.5 w-3.5 text-violet-400" />
               Rendered Body Content
             </label>
-            <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 whitespace-pre-wrap min-h-[160px] leading-relaxed font-sans">
+            <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 whitespace-pre-wrap min-h-40 leading-relaxed font-sans">
               {renderedBody || (
                 <span className="text-zinc-600 italic">
                   No body text content

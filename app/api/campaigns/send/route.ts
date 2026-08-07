@@ -3,7 +3,8 @@ import { prisma } from "@/lib/db";
 import { verifyToken } from "@/lib/jwt";
 import { sendProviderEmail } from "@/lib/email/dispatcher";
 import { checkQuotaAvailable, incrementUserQuota, getUserQuotaInfo } from "@/lib/email/quota";
-import { renderTemplate, RecipientVariableItem } from "@/lib/email/template";
+import { renderTemplate } from "@/lib/email/template";
+import { RecipientVariableItem } from "@/types/campaign";
 
 // Helper to get userId from Authorization header
 function getUserIdFromRequest(req: NextRequest): string | null {

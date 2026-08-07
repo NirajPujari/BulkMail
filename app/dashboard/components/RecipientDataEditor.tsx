@@ -313,11 +313,11 @@ export function RecipientDataEditor({
         <table className="w-full text-left text-xs text-zinc-300">
           <thead className="bg-zinc-900/90 text-zinc-400 uppercase tracking-wider font-semibold border-b border-zinc-850">
             <tr>
-              <th className="px-3.5 py-2.5 min-w-[200px]">
+              <th className="px-3.5 py-2.5 min-w-50">
                 Email Address ({recipientItems.length})
               </th>
               {variables.map((v) => (
-                <th key={v} className="px-3.5 py-2.5 min-w-[150px]">
+                <th key={v} className="px-3.5 py-2.5 min-w-37.5">
                   {editingVar === v ? (
                     <div className="flex items-center gap-1">
                       <Input
