@@ -8,10 +8,10 @@ export function Footer() {
           &copy; {new Date().getFullYear()} Dootx. All rights reserved.
         </p>
         <div className="flex items-center gap-4 text-sm text-zinc-500">
-          <Link href="#" className="hover:underline hover:text-zinc-300 underline-offset-4">
+          <Link href="/terms" className="hover:underline hover:text-zinc-300 underline-offset-4">
             Terms
           </Link>
-          <Link href="#" className="hover:underline hover:text-zinc-300 underline-offset-4">
+          <Link href="/privacy" className="hover:underline hover:text-zinc-300 underline-offset-4">
             Privacy
           </Link>
         </div>

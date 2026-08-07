@@ -231,6 +231,12 @@ export default function Home() {
             © {new Date().getFullYear()} Dootx Systems. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-zinc-400">
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms
+            </Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              Privacy
+            </Link>
             <Link
               href="/dashboard"
               className="hover:text-white transition-colors"
