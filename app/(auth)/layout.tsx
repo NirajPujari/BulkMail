@@ -1,4 +1,4 @@
-import { Mail, CheckCircle2, TrendingUp, Zap, Send } from "lucide-react";
+import { Mail, CheckCircle2, TrendingUp, Send } from "lucide-react";
 
 export default function AuthLayout({
   children,
@@ -18,7 +18,9 @@ export default function AuthLayout({
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100 border border-primary/20">
             <Mail className="h-5 w-5 text-primary" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-zinc-900">Bulkmail</span>
+          <span className="text-xl font-bold tracking-tight text-zinc-900">
+            Bulkmail
+          </span>
         </div>
 
         {/* Middle Value Proposition & Preview */}
@@ -29,7 +31,9 @@ export default function AuthLayout({
               Send email campaigns fast.
             </h1>
             <p className="text-zinc-500 text-sm leading-relaxed">
-              Bulkmail is a professional bulk email sender designed to keep your marketing workflows simple, structured, and focused. Upload contact lists, draft responsive emails, and hit inboxes.
+              Bulkmail is a professional bulk email sender designed to keep your
+              marketing workflows simple, structured, and focused. Upload
+              contact lists, draft responsive emails, and hit inboxes.
             </p>
           </div>
 
@@ -38,20 +42,33 @@ export default function AuthLayout({
             <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-primary/5 blur-xl"></div>
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Active Campaign</span>
-                <h4 className="text-base font-bold text-zinc-900">Product Launch Newsletter</h4>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                  Active Campaign
+                </span>
+                <h4 className="text-base font-bold text-zinc-900">
+                  Product Launch Newsletter
+                </h4>
               </div>
               <div className="flex h-2 w-2 rounded-full bg-primary animate-pulse"></div>
             </div>
-            
+
             <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between text-xs border-b border-border pb-2">
-                <span className="text-zinc-500 flex items-center gap-1.5"><Send className="h-3.5 w-3.5 text-amber-500" /> Sending Speed</span>
-                <span className="font-semibold text-zinc-800">150 emails / min</span>
+              <div className="flex items-center justify-between text-sm border-b border-border pb-2">
+                <span className="text-zinc-500 flex items-center gap-1.5">
+                  <Send className="h-3.5 w-3.5 text-amber-500" /> Sending Speed
+                </span>
+                <span className="font-semibold text-zinc-800">
+                  150 emails / min
+                </span>
               </div>
-              <div className="flex items-center justify-between text-xs border-b border-border pb-2">
-                <span className="text-zinc-500 flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5 text-primary" /> Delivery Success</span>
-                <span className="font-semibold text-zinc-800">99.8% Successful</span>
+              <div className="flex items-center justify-between text-sm border-b border-border pb-2">
+                <span className="text-zinc-500 flex items-center gap-1.5">
+                  <TrendingUp className="h-3.5 w-3.5 text-primary" /> Delivery
+                  Success
+                </span>
+                <span className="font-semibold text-zinc-800">
+                  99.8% Successful
+                </span>
               </div>
             </div>
 
@@ -61,7 +78,10 @@ export default function AuthLayout({
                 <span className="text-primary font-semibold">82% Sent</span>
               </div>
               <div className="h-1.5 w-full rounded-full bg-zinc-100 overflow-hidden">
-                <div className="h-full rounded-full bg-linear-to-r from-primary to-violet-500" style={{ width: "82%" }} />
+                <div
+                  className="h-full rounded-full bg-linear-to-r from-primary to-violet-500"
+                  style={{ width: "82%" }}
+                />
               </div>
             </div>
           </div>
@@ -70,21 +90,27 @@ export default function AuthLayout({
           <ul className="space-y-3.5">
             <li className="flex items-center gap-3 text-sm text-zinc-600">
               <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-              <span>Import thousands of recipients via copy-paste or files</span>
+              <span>
+                Import thousands of recipients via copy-paste or files
+              </span>
             </li>
             <li className="flex items-center gap-3 text-sm text-zinc-600">
               <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-              <span>Track real-time simulation progress and delivery stats</span>
+              <span>
+                Track real-time simulation progress and delivery stats
+              </span>
             </li>
             <li className="flex items-center gap-3 text-sm text-zinc-600">
               <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-              <span>Review past campaigns from your PostgreSQL history logs</span>
+              <span>
+                Review past campaigns from your PostgreSQL history logs
+              </span>
             </li>
           </ul>
         </div>
 
         {/* Footer info */}
-        <div className="relative z-10 text-xs text-zinc-400">
+        <div className="relative z-10 text-sm text-zinc-400">
           © {new Date().getFullYear()} Bulkmail. All rights reserved.
         </div>
       </div>
@@ -94,7 +120,7 @@ export default function AuthLayout({
         {/* Subtle background glow for mobile */}
         <div className="absolute top-10 right-10 h-72 w-72 rounded-full bg-primary/5 blur-[80px] lg:hidden" />
         <div className="absolute bottom-10 left-10 h-72 w-72 rounded-full bg-violet-600/5 blur-[80px] lg:hidden" />
-        
+
         <div className="w-full max-w-md space-y-8 relative z-10">
           {children}
         </div>

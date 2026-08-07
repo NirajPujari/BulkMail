@@ -7,6 +7,11 @@ export interface User {
   userId: string;
   email: string;
   role: Role;
+  googleConnected?: boolean;
+  googleEmail?: string | null;
+  emailsSentToday?: number;
+  dailyQuotaLimit?: number;
+  remainingQuota?: number;
 }
 
 export interface TokenPayload extends User, JwtPayload {}

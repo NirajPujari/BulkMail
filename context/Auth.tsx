@@ -22,27 +22,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return !!localStorage.getItem(TOKEN_KEY);
   });
 
+  const refreshUser = async () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return;
+
+    try {
+      const res = await fetchRequest("/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      }
+    } catch (err) {
+      console.error("Failed to refresh user profile:", err);
+    }
+  };
+
   // Restore session
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY);
 
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
-    fetchRequest("/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error();
-
-        const data = await res.json();
-        setUser(data.user);
-      })
-      .catch(() => {
-        localStorage.removeItem(TOKEN_KEY);
-      })
-      .finally(() => setLoading(false));
+    refreshUser().finally(() => setLoading(false));
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -147,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signup,
         logout,
         forgot,
+        refreshUser,
       }}
     >
       {children}

@@ -27,14 +27,14 @@ export function CampaignSimulator({
             Active Campaign Dispatcher
           </CardTitle>
           <CardDescription className="text-zinc-400">
-            Transmitting SMTP message relays to recipient queue. Do not close this
-            window.
+            Transmitting SMTP message relays to recipient queue. Do not close
+            this window.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5 pt-6">
           {/* Progress bar */}
           <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-semibold">
+            <div className="flex justify-between text-sm font-semibold">
               <span className="text-zinc-400">Transmitting payload...</span>
               <span className="text-violet-400 font-bold">
                 {simulationProgress}%
@@ -89,7 +89,7 @@ export function CampaignSimulator({
                 </div>
               ))}
               {simulationProgress < 100 && (
-                <div className="flex items-center gap-2 text-zinc-500 animate-pulse mt-2 font-sans text-xs">
+                <div className="flex items-center gap-2 text-zinc-500 animate-pulse mt-2 font-sans text-sm">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>

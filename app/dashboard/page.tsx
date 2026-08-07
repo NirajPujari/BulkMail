@@ -11,9 +11,10 @@ import { StatsCards } from "./components/StatsCards";
 import { CampaignComposer } from "./components/CampaignComposer";
 import { CampaignHistory } from "./components/CampaignHistory";
 import { CampaignSimulator } from "./components/CampaignSimulator";
+import { RecipientVariableItem } from "@/lib/email/template";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,6 +23,16 @@ export default function Dashboard() {
   const [body, setBody] = useState("");
   const [recipientInput, setRecipientInput] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
+
+  // Recipient Variables & Data Items state
+  const [variables, setVariables] = useState<string[]>([
+    "name",
+    "company",
+    "position",
+  ]);
+  const [recipientItems, setRecipientItems] = useState<RecipientVariableItem[]>(
+    [],
+  );
 
   // Selected campaign state for editing drafts/campaigns in-place
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
@@ -47,6 +58,7 @@ export default function Dashboard() {
   // Fetch campaigns
   const fetchCampaigns = async () => {
     try {
+      refreshUser();
       const res = await fetchRequest("campaigns");
       if (!res.ok) throw new Error("Failed to fetch campaigns");
       const data = await res.json();
@@ -67,11 +79,11 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user?.userId) {
       setSenderEmail(user.email);
       fetchCampaigns();
     }
-  }, [user]);
+  }, [user?.userId]);
 
   // Polling for active campaign progress
   useEffect(() => {
@@ -84,9 +96,14 @@ export default function Dashboard() {
         const data = await res.json();
 
         const logLines = data.logs ? data.logs.split("\n") : [];
-        const failedCount = logLines.filter((line: string) => line.startsWith("[Failed]")).length;
+        const failedCount = logLines.filter((line: string) =>
+          line.startsWith("[Failed]"),
+        ).length;
         const processed = data.sentCount + failedCount;
-        const progress = data.totalCount > 0 ? Math.round((processed / data.totalCount) * 100) : 0;
+        const progress =
+          data.totalCount > 0
+            ? Math.round((processed / data.totalCount) * 100)
+            : 0;
 
         setSimulationProgress(Math.min(progress, 100));
         setSimulationStats({
@@ -99,8 +116,11 @@ export default function Dashboard() {
         if (data.status === "completed" || data.status === "failed") {
           clearInterval(pollInterval);
           setActiveCampaignId(null);
-          toast.success(`Campaign "${data.subject}" execution finished: ${data.status}`);
+          toast.success(
+            `Campaign "${data.subject}" execution finished: ${data.status}`,
+          );
           fetchCampaigns();
+          refreshUser();
         }
       } catch (error) {
         console.error("Status polling error:", error);
@@ -119,34 +139,50 @@ export default function Dashboard() {
     setSubject("");
     setBody("");
     setRecipientInput("");
+    setRecipientItems([]);
   };
 
   const handleLaunchCampaign = async () => {
     if (activeCampaignId) {
-      toast.error("A campaign is already running. Please wait for it to complete.");
+      toast.error(
+        "A campaign is already running. Please wait for it to complete.",
+      );
       return;
     }
 
-    if (!subject.trim() || !body.trim() || !recipientInput.trim()) {
-      toast.error("Please fill in all campaign fields to launch");
+    if (!subject.trim() || !body.trim()) {
+      toast.error("Please fill in subject and body to launch");
       return;
     }
 
-    // Parse recipients
-    const emails = recipientInput
-      .split(/[\n,;]+/)
-      .map((email) => email.trim())
-      .filter((email) => email.length > 0 && email.includes("@"));
+    // Prepare recipient items list
+    let targetRecipients: RecipientVariableItem[] = [];
 
-    if (emails.length === 0) {
-      toast.error("Please enter at least one valid recipient email address");
+    if (recipientItems.length > 0) {
+      targetRecipients = recipientItems.filter(
+        (r) => r.email && r.email.includes("@"),
+      );
+    } else {
+      const parsedEmails = recipientInput
+        .split(/[\n,;]+/)
+        .map((email) => email.trim())
+        .filter((email) => email.length > 0 && email.includes("@"));
+
+      targetRecipients = parsedEmails.map((email) => ({
+        email,
+        variables: {},
+      }));
+    }
+
+    if (targetRecipients.length === 0) {
+      toast.error("Please enter at least one valid recipient email address.");
       return;
     }
 
     // Reset overlay state
     setSimulationProgress(0);
-    setSimulationLogs(["[System] Queuing campaign..."]);
-    setSimulationStats({ sent: 0, failed: 0, total: emails.length });
+    setSimulationLogs(["[System] Queuing personalized campaign..."]);
+    setSimulationStats({ sent: 0, failed: 0, total: targetRecipients.length });
     setIsSimulating(true);
 
     try {
@@ -160,6 +196,8 @@ export default function Dashboard() {
           subject,
           body,
           recipients: recipientInput,
+          recipientData: targetRecipients,
+          variables,
           senderEmail,
         }),
       });
@@ -169,7 +207,7 @@ export default function Dashboard() {
         throw new Error(data.message || "Failed to launch campaign");
       }
 
-      toast.success("Campaign launched in background!");
+      toast.success("Personalized campaign queued for background dispatch!");
       setActiveCampaignId(data.campaignId);
       handleClearSelection();
     } catch (error: any) {
@@ -181,23 +219,36 @@ export default function Dashboard() {
 
   const handleSaveCampaign = async () => {
     if (activeCampaignId) {
-      toast.error("A campaign is already running. Please wait for it to complete.");
+      toast.error(
+        "A campaign is already running. Please wait for it to complete.",
+      );
       return;
     }
 
-    if (!subject.trim() || !body.trim() || !recipientInput.trim()) {
-      toast.error("Please fill in all campaign fields to save");
+    if (!subject.trim() || !body.trim()) {
+      toast.error("Please fill in subject and body to save draft");
       return;
     }
 
-    // Parse recipients
-    const emails = recipientInput
-      .split(/[\n,;]+/)
-      .map((email) => email.trim())
-      .filter((email) => email.length > 0 && email.includes("@"));
+    let targetRecipients: RecipientVariableItem[] = [];
+    if (recipientItems.length > 0) {
+      targetRecipients = recipientItems.filter(
+        (r) => r.email && r.email.includes("@"),
+      );
+    } else {
+      const parsedEmails = recipientInput
+        .split(/[\n,;]+/)
+        .map((email) => email.trim())
+        .filter((email) => email.length > 0 && email.includes("@"));
 
-    if (emails.length === 0) {
-      toast.error("Please enter at least one valid recipient email address");
+      targetRecipients = parsedEmails.map((email) => ({
+        email,
+        variables: {},
+      }));
+    }
+
+    if (targetRecipients.length === 0) {
+      toast.error("Please enter at least one valid recipient email address.");
       return;
     }
 
@@ -213,23 +264,22 @@ export default function Dashboard() {
           ...(isUpdate && { id: selectedCampaignId }),
           subject,
           body,
-          recipients: emails.join(", "),
+          recipients: JSON.stringify(targetRecipients),
           status: "draft",
           sentCount: 0,
-          totalCount: emails.length,
+          totalCount: targetRecipients.length,
         }),
       });
 
       if (!res.ok) throw new Error();
 
       toast.success(
-        isUpdate ? "Campaign draft updated successfully!" : "Campaign draft saved successfully!",
+        isUpdate
+          ? "Campaign draft updated successfully!"
+          : "Campaign draft saved successfully!",
       );
 
-      // Reset form & selection
       handleClearSelection();
-
-      // Refresh campaigns list
       await fetchCampaigns();
     } catch (error) {
       console.error(error);
@@ -240,7 +290,6 @@ export default function Dashboard() {
   };
 
   const handleSelectCampaign = (campaign: Campaign) => {
-    // If this campaign is currently sending, load it into the progress modal!
     if (campaign.status === "sending") {
       setActiveCampaignId(campaign.id);
       setIsSimulating(true);
@@ -250,8 +299,36 @@ export default function Dashboard() {
     setSelectedCampaignId(campaign.id);
     setSubject(campaign.subject);
     setBody(campaign.body);
-    // Split comma separated emails and join with newlines for editing
-    setRecipientInput(campaign.recipients.split(", ").join("\n"));
+
+    // Try parsing JSON recipient array with custom variables
+    try {
+      const parsed = JSON.parse(campaign.recipients);
+      if (
+        Array.isArray(parsed) &&
+        parsed.length > 0 &&
+        typeof parsed[0] === "object"
+      ) {
+        setRecipientItems(parsed);
+        const emailsStr = parsed.map((i: any) => i.email || "").join("\n");
+        setRecipientInput(emailsStr);
+
+        // Extract all variable keys
+        const keysSet = new Set<string>(variables);
+        parsed.forEach((item: any) => {
+          if (item.variables) {
+            Object.keys(item.variables).forEach((k) => keysSet.add(k));
+          }
+        });
+        setVariables(Array.from(keysSet));
+      } else {
+        setRecipientItems([]);
+        setRecipientInput(campaign.recipients.split(", ").join("\n"));
+      }
+    } catch {
+      setRecipientItems([]);
+      setRecipientInput(campaign.recipients.split(", ").join("\n"));
+    }
+
     toast.success(`Loaded campaign: "${campaign.subject}" into composer.`);
   };
 
@@ -321,6 +398,9 @@ export default function Dashboard() {
       <StatsCards
         totalEmailsSent={totalEmailsSent}
         totalCampaigns={totalCampaigns}
+        emailsSentToday={user?.emailsSentToday || 0}
+        dailyQuotaLimit={user?.dailyQuotaLimit || 500}
+        remainingQuota={user?.remainingQuota ?? 500}
       />
 
       {activeCampaignId && (
@@ -352,8 +432,14 @@ export default function Dashboard() {
             setBody={setBody}
             recipientInput={recipientInput}
             setRecipientInput={setRecipientInput}
-            senderEmail={senderEmail}
-            setSenderEmail={setSenderEmail}
+            variables={variables}
+            setVariables={setVariables}
+            recipientItems={recipientItems}
+            setRecipientItems={setRecipientItems}
+            googleConnected={!!user?.googleConnected}
+            googleEmail={user?.googleEmail || null}
+            remainingQuota={user?.remainingQuota ?? 500}
+            dailyQuotaLimit={user?.dailyQuotaLimit || 500}
             selectedCampaignId={selectedCampaignId}
             handleClearSelection={handleClearSelection}
             handleSaveCampaign={handleSaveCampaign}

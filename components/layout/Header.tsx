@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Mail, LogOut, LayoutDashboard } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Bell, Mail, LogOut, LayoutDashboard, Shield, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -19,7 +18,6 @@ import { useAuth } from "@/context/Auth";
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, logout } = useAuth();
-  const pathname = usePathname();
 
   const handleLogout = async () => {
     try {
@@ -73,7 +71,7 @@ export function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full overflow-hidden hover:bg-zinc-900 p-0.5 outline-none cursor-pointer border border-zinc-800">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-zinc-800 text-zinc-100 font-semibold text-xs">
+                <AvatarFallback className="bg-zinc-800 text-zinc-100 font-semibold text-sm">
                   {user?.name
                     ? user.name
                         .split(" ")
@@ -84,10 +82,15 @@ export function Header() {
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 mt-2 bg-zinc-900 border border-zinc-800 text-zinc-100">
+            <DropdownMenuContent
+              align="end"
+              className="w-56 mt-2 bg-zinc-900 border border-zinc-800 text-zinc-100"
+            >
               <div className="flex flex-col space-y-1 p-2">
-                <p className="text-sm font-medium leading-none text-zinc-200">{user?.name}</p>
-                <p className="text-xs leading-none text-zinc-500">
+                <p className="text-sm font-medium leading-none text-zinc-200">
+                  {user?.name}
+                </p>
+                <p className="text-sm leading-none text-zinc-500">
                   {user?.email}
                 </p>
               </div>
@@ -102,10 +105,32 @@ export function Header() {
                     Dashboard
                   </Link>
                 </DropdownMenuItem>
+
+                <DropdownMenuItem className="p-0 hover:bg-zinc-800 focus:bg-zinc-800">
+                  <Link
+                    href="/settings"
+                    className="flex w-full items-center px-2 py-1.5 cursor-pointer text-zinc-300 hover:text-white"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Account Settings
+                  </Link>
+                </DropdownMenuItem>
+
+                {user?.role === "admin" && (
+                  <DropdownMenuItem className="p-0 hover:bg-zinc-800 focus:bg-zinc-800">
+                    <Link
+                      href="/admin"
+                      className="flex w-full items-center px-2 py-1.5 cursor-pointer text-violet-400 hover:text-violet-300 font-medium"
+                    >
+                      <Shield className="mr-2 h-4 w-4 text-violet-400" />
+                      Admin Control Center
+                    </Link>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-zinc-800" />
               <DropdownMenuItem
-                className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer hover:bg-destructive/10"
+                className="text-destructive focus:bg-destructive/10 cursor-pointer hover:bg-destructive/10"
                 onClick={handleLogout}
               >
                 <LogOut className="mr-2 h-4 w-4" />

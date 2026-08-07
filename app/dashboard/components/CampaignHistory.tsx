@@ -40,7 +40,7 @@ export function CampaignHistory({
           <div className="flex flex-col items-center justify-center text-center p-8 h-48 text-zinc-500 border border-dashed rounded-lg border-zinc-800/80 flex-1">
             <Mail className="h-8 w-8 mb-2.5 stroke-1 text-zinc-600" />
             <p className="text-sm font-medium">No campaigns sent yet.</p>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-sm text-zinc-500 mt-1">
               Draft your first campaign on the left.
             </p>
           </div>
@@ -92,7 +92,7 @@ export function CampaignHistory({
                     </button>
                   </div>
                 </div>
-                <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+                <p className="text-sm text-zinc-400 line-clamp-2 leading-relaxed">
                   {campaign.body}
                 </p>
                 <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-2 border-t border-zinc-800/80">

@@ -7,31 +7,40 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(uuid())
-  name      String
-  email     String     @unique
-  password  String
-  role      String     @default("user")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  campaigns Campaign[]
+  id                 String     @id @default(uuid())
+  name               String
+  email              String     @unique
+  password           String
+  role               String     @default("user")
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  googleConnected    Boolean    @default(false)
+  googleEmail        String?
+  googleRefreshToken String?
+  googleTokenExpiry  DateTime?
+  dailyQuotaLimit    Int        @default(500)
+  emailsSentToday    Int        @default(0)
+  lastQuotaReset     DateTime   @default(now())
+  campaigns          Campaign[]
 
   @@map("users")
 }
 
 model Campaign {
-  id          String   @id @default(uuid())
-  subject     String
-  body        String
-  recipients  String   // Comma-separated or JSON string list of email addresses
-  status      String   @default("draft") // draft, sending, completed, failed
-  sentCount   Int      @default(0)
-  totalCount  Int      @default(0)
-  logs        String   @default("")
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(uuid())
+  subject    String
+  body       String
+  recipients String
+  status     String   @default("draft")
+  sentCount  Int      @default(0)
+  totalCount Int      @default(0)
+  logs       String   @default("")
+  userId     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("campaigns")
 }

@@ -8,4 +8,5 @@ export interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   forgot: (email: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }

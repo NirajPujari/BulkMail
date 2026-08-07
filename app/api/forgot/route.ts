@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { defaultEmailService } from "@/lib/email/service";
+import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,9 +27,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // In a production application, you would generate a unique token, save it to DB,
-    // and email a reset link to the user. For development, we log it and return success.
-    console.log(`Password reset requested for email: ${normalizedEmail}`);
+    // Generate secure random reset token
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour expiry
+
+    // Save token to DB
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken: token,
+        resetTokenExpiry: expiresAt,
+      },
+    });
+
+    // Build reset URL
+    const origin = req.headers.get("origin") || req.nextUrl.origin || "http://localhost:3000";
+    const resetUrl = `${origin}/reset-password?token=${token}`;
+
+    try {
+      await defaultEmailService.sendEmail({
+        to: normalizedEmail,
+        subject: "BulkMail - Password Reset Request",
+        text: `Hello ${user.name},\n\nYou requested to reset your password for BulkMail.\n\nPlease click the link below to reset your password:\n${resetUrl}\n\nThis link will expire in 1 hour.\n\nIf you did not request a password reset, please ignore this email.`,
+      });
+    } catch (emailError) {
+      console.error("Failed to send transactional reset email:", emailError);
+      console.log(`[Development Mode Reset URL]: ${resetUrl}`);
+    }
 
     return NextResponse.json({
       message: "Reset email sent successfully",

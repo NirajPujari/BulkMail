@@ -41,8 +41,9 @@ export default function ForgotPasswordPage() {
       await forgot(email);
       setIsSuccess(true);
       toast.success("Instructions sent successfully!");
-    } catch (err: any) {
-      setError(err.message || "Failed to send reset email");
+    } catch (err) {
+      setError("Failed to send reset email");
+      console.log(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -58,7 +59,7 @@ export default function ForgotPasswordPage() {
           </div>
 
           <div className="space-y-2">
-            <CardTitle className="text-xl font-bold tracking-tight text-zinc-900 normal-case">
+            <CardTitle className="text-xl font-bold tracking-tight text-zinc-200 normal-case">
               Check your email
             </CardTitle>
             <p className="text-zinc-500 text-sm leading-relaxed max-w-sm mx-auto">
@@ -85,7 +86,7 @@ export default function ForgotPasswordPage() {
   return (
     <Card className="hover:shadow-md transition-shadow bg-card border-border border">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-xl font-bold tracking-tight text-zinc-900 normal-case">
+        <CardTitle className="text-xl font-bold tracking-tight text-zinc-200 normal-case">
           Forgot Password
         </CardTitle>
         <CardDescription className="text-zinc-500 text-sm">
@@ -95,7 +96,7 @@ export default function ForgotPasswordPage() {
       </CardHeader>
       <CardContent>
         {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -104,7 +105,7 @@ export default function ForgotPasswordPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email Field */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
+            <label className="text-sm font-semibold uppercase tracking-wider text-zinc-200 flex items-center gap-1.5">
               <Mail className="h-3.5 w-3.5" />
               Email Address
             </label>
@@ -116,7 +117,7 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSubmitting}
-                className="border-0 rounded-md px-2 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="border-0 rounded-md px-2 text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0"
                 required
               />
 
@@ -147,7 +148,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center text-sm mt-6">
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-zinc-900 transition-colors text-xs uppercase tracking-wider font-semibold"
+            className="inline-flex items-center gap-1.5 text-zinc-200 hover:text-zinc-500 transition-colors text-sm uppercase tracking-wider font-semibold"
           >
             <ArrowLeft className="h-3 w-3" />
             Back to Log In

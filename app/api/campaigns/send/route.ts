@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyToken } from "@/lib/jwt";
-import { resendClients } from "@/lib/email/providers";
+import { sendProviderEmail } from "@/lib/email/dispatcher";
+import { checkQuotaAvailable, incrementUserQuota, getUserQuotaInfo } from "@/lib/email/quota";
+import { renderTemplate, RecipientVariableItem } from "@/lib/email/template";
 
 // Helper to get userId from Authorization header
 function getUserIdFromRequest(req: NextRequest): string | null {
@@ -21,24 +23,57 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id, subject, body, recipients, senderEmail } = await req.json();
+    // Check user's Google connection state in DB
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        googleConnected: true,
+        googleEmail: true,
+      },
+    });
 
-    if (!subject || !body || !recipients || !senderEmail) {
+    if (!user || !user.googleConnected || !user.googleEmail) {
       return NextResponse.json(
-        { message: "Subject, body, recipients, and senderEmail are required" },
+        { message: "Google account not connected. Please connect your Google account before sending emails." },
         { status: 400 }
       );
     }
 
-    // Parse recipients
-    const emails = recipients
-      .split(/[\n,;]+/)
-      .map((email: string) => email.trim())
-      .filter((email: string) => email.length > 0 && email.includes("@"));
+    const { id, subject, body, recipients, recipientData } = await req.json();
 
-    if (emails.length === 0) {
+    if (!subject || !body) {
+      return NextResponse.json(
+        { message: "Subject and body are required" },
+        { status: 400 }
+      );
+    }
+
+    // Determine structured recipient list
+    let targetRecipients: RecipientVariableItem[] = [];
+
+    if (Array.isArray(recipientData) && recipientData.length > 0) {
+      targetRecipients = recipientData.filter((r) => r.email && r.email.includes("@"));
+    } else if (recipients) {
+      const parsedEmails = recipients
+        .split(/[\n,;]+/)
+        .map((email: string) => email.trim())
+        .filter((email: string) => email.length > 0 && email.includes("@"));
+
+      targetRecipients = parsedEmails.map((email: string) => ({ email, variables: {} }));
+    }
+
+    if (targetRecipients.length === 0) {
       return NextResponse.json(
         { message: "No valid recipient email addresses found" },
+        { status: 400 }
+      );
+    }
+
+    // Pre-flight Daily Quota Check
+    const quotaCheck = await checkQuotaAvailable(userId, targetRecipients.length);
+    if (!quotaCheck.allowed) {
+      return NextResponse.json(
+        { message: quotaCheck.message },
         { status: 400 }
       );
     }
@@ -58,6 +93,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const recipientsDbPayload = JSON.stringify(targetRecipients);
+
     // Create or retrieve campaign in DB
     let campaignId = id;
     if (campaignId) {
@@ -74,10 +111,10 @@ export async function POST(req: NextRequest) {
           status: "sending",
           subject,
           body,
-          recipients: emails.join(", "),
-          totalCount: emails.length,
+          recipients: recipientsDbPayload,
+          totalCount: targetRecipients.length,
           sentCount: 0,
-          logs: `[System] Resuming draft campaign: "${subject}"...\n[System] Found ${emails.length} recipient(s).`,
+          logs: `[System] Resuming draft campaign: "${subject}"...\n[System] Found ${targetRecipients.length} recipient(s).`,
         },
       });
     } else {
@@ -85,23 +122,22 @@ export async function POST(req: NextRequest) {
         data: {
           subject,
           body,
-          recipients: emails.join(", "),
+          recipients: recipientsDbPayload,
           status: "sending",
           sentCount: 0,
-          totalCount: emails.length,
-          logs: `[System] Initializing new campaign: "${subject}"...\n[System] Found ${emails.length} recipient(s).`,
+          totalCount: targetRecipients.length,
+          logs: `[System] Initializing personalized campaign: "${subject}"...\n[System] Found ${targetRecipients.length} recipient(s).`,
           userId,
         },
       });
       campaignId = campaign.id;
     }
 
-    // Trigger background send process (DO NOT await this, let it run)
-    sendCampaignBackground(campaignId, subject, body, emails, senderEmail);
+    // Trigger background send process via Gmail API
+    sendCampaignBackground(userId, campaignId, subject, body, targetRecipients, user.googleEmail);
 
-    // Return status immediately
     return NextResponse.json({
-      message: "Campaign queued and starting execution in background.",
+      message: "Campaign queued and starting personalized execution in background via Gmail API.",
       campaignId,
     });
   } catch (error) {
@@ -111,17 +147,18 @@ export async function POST(req: NextRequest) {
 }
 
 async function sendCampaignBackground(
+  userId: string,
   campaignId: string,
   subject: string,
   body: string,
-  emails: string[],
+  recipients: RecipientVariableItem[],
   senderEmail: string
 ) {
   let sent = 0;
   let failed = 0;
   let logsAccumulator = "";
 
-  // Helper to load logs and append new line
+  // Helper to append logs to DB
   const appendLog = async (msg: string) => {
     try {
       const campaign = await prisma.campaign.findUnique({
@@ -140,83 +177,67 @@ async function sendCampaignBackground(
     }
   };
 
-  // Determine active clients
-  const activeClients: { client: any; label: string }[] = [];
-  if (process.env.RESENT_API_1 || process.env.RESEND_API_KEY_1) {
-    activeClients.push({ client: resendClients[0], label: "Provider Key #1" });
-  }
-  if (process.env.RESENT_API_2 || process.env.RESEND_API_KEY_2) {
-    activeClients.push({ client: resendClients[1], label: "Provider Key #2" });
-  }
+  await appendLog(`[System] Initialized Gmail API personalized dispatch engine.`);
+  await appendLog(`[System] Authenticating connected Gmail sender identity: <${senderEmail}>... Success.`);
 
-  if (activeClients.length === 0) {
-    await appendLog("[Failed] Both RESENT_API_1 and RESENT_API_2 are empty/missing. Cannot transmit.");
-    try {
-      await prisma.campaign.update({
-        where: { id: campaignId },
-        data: { status: "failed" },
-      });
-    } catch (e) {
-      console.error(e);
+  for (let i = 0; i < recipients.length; i++) {
+    const item = recipients[i];
+    const email = item.email;
+
+    // Check remaining quota before attempting dispatch
+    const currentQuota = await getUserQuotaInfo(userId);
+    if (currentQuota.remainingQuota <= 0) {
+      await appendLog(
+        `[Quota Reached] Daily Gmail API quota exhausted (${currentQuota.emailsSentToday}/${currentQuota.dailyQuotaLimit}). Halting remaining dispatches.`
+      );
+      break;
     }
-    return;
-  }
 
-  await appendLog(`[System] Round-robin initialized with ${activeClients.length} provider keys.`);
-  await appendLog(`[System] Authenticating sender identity: <${senderEmail}>... Success.`);
+    // Render personalized subject and body for this recipient
+    const personalizedSubject = renderTemplate(subject, item.variables);
+    const personalizedBody = renderTemplate(body, item.variables);
 
-  for (let i = 0; i < emails.length; i++) {
-    const email = emails[i];
-    const clientData = activeClients[i % activeClients.length];
-
-    await appendLog(`[Sending] Dispatching via ${clientData.label} to ${email}...`);
+    await appendLog(`[Sending] Personalizing & dispatching via Gmail API to ${email}...`);
 
     try {
-      const { data, error } = await clientData.client.emails.send({
-        from: senderEmail,
+      const result = await sendProviderEmail({
+        userId,
         to: email,
-        subject: subject,
-        text: body,
+        subject: personalizedSubject,
+        body: personalizedBody,
       });
 
-      if (error) {
-        failed++;
-        await appendLog(`[Failed] SMTP/Resend bounce for ${email}: ${error.message}`);
-      } else {
-        sent++;
-        await appendLog(`[Success] Delivered to ${email} (250 OK, ID: ${data?.id || "N/A"})`);
-      }
-    } catch (err: any) {
+      sent++;
+      await incrementUserQuota(userId, 1);
+      await appendLog(`[Success] Delivered personalized email to ${email} via Gmail API (Message ID: ${result.id})`);
+    } catch (err) {
       failed++;
-      await appendLog(`[Failed] Error dispatching to ${email}: ${err?.message || err}`);
+      console.error(`Error dispatching to ${email}:`, err);
+      await appendLog(`[Failed] Error dispatching to ${email}: ${err}`);
     }
 
-    // Update database periodically during loop to reflect progress
+    // Update sent count periodically
     try {
       await prisma.campaign.update({
         where: { id: campaignId },
-        data: {
-          sentCount: sent,
-        },
+        data: { sentCount: sent },
       });
     } catch (e) {
       console.error("Failed to update sent count:", e);
     }
 
-    // Delay between emails (e.g. 1 second)
+    // 1-second delay between emails to respect Gmail API quota
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
-  const finalStatus = failed === emails.length ? "failed" : "completed";
-  await appendLog(`[System] Background dispatcher finished.`);
-  await appendLog(`[Summary] Sent: ${sent}, Bounced: ${failed}, Total: ${emails.length}`);
+  const finalStatus = failed === recipients.length ? "failed" : "completed";
+  await appendLog(`[System] Gmail API personalized background dispatcher finished.`);
+  await appendLog(`[Summary] Sent: ${sent}, Failed: ${failed}, Total: ${recipients.length}`);
 
   try {
     await prisma.campaign.update({
       where: { id: campaignId },
-      data: {
-        status: finalStatus,
-      },
+      data: { status: finalStatus },
     });
   } catch (e) {
     console.error("Failed to set final status:", e);

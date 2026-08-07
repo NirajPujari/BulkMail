@@ -7,7 +7,14 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { Mail } from "lucide-react";
 
-const AUTH_PAGES = ["/login", "/signup", "/forgot-password"];
+const AUTH_PAGES = ["/login", "/signup", "/forgot-password", "/setup-account"];
+
+const PUBLIC_ROUTES = [
+  "/",
+  ...AUTH_PAGES,
+  "/oauth/google/success",
+  "/oauth/google/error",
+];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -16,75 +23,85 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const setMou = () => {
+      setMounted(true);
+    };
+    setMou();
   }, []);
 
   const isAuthPage = AUTH_PAGES.includes(pathname);
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
   useEffect(() => {
     if (loading || !mounted) return;
 
-    if (!user && !isAuthPage) {
-      router.push("/login");
-    } else if (user && isAuthPage) {
-      router.push("/dashboard");
+    // Redirect unauthenticated users away from protected pages
+    if (!user && !isPublicRoute) {
+      router.replace("/login");
+      return;
     }
-  }, [user, loading, isAuthPage, router, mounted]);
 
-  // Loading indicator component
-  const LoadingScreen = () => (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 text-white">
-      <div className="relative flex flex-col items-center">
-        {/* Glowing aura */}
-        <div className="absolute -inset-4 rounded-full bg-violet-600/10 blur-xl animate-pulse"></div>
-        {/* Main logo pulse */}
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 shadow-[0_0_30px_rgba(139,92,246,0.15)] animate-bounce">
-          <Mail className="h-8 w-8 text-violet-400 animate-pulse" />
-        </div>
-        <h2 className="mt-6 text-sm font-semibold tracking-widest uppercase text-zinc-400 animate-pulse">
-          Loading Bulkmail
-        </h2>
-      </div>
-    </div>
-  );
+    // Redirect authenticated users away from auth pages
+    if (user && isAuthPage) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, mounted, isAuthPage, isPublicRoute, router]);
 
   // Prevent hydration mismatch
   if (!mounted) {
     return <LoadingScreen />;
   }
 
-  // If session is loading, show loading screen
+  // Wait until auth restoration completes
   if (loading) {
     return <LoadingScreen />;
   }
 
-  // If user is not authenticated and trying to access a protected page, show loading screen while redirecting
-  if (!user && !isAuthPage) {
+  // While redirecting from protected pages
+  if (!user && !isPublicRoute) {
     return <LoadingScreen />;
   }
 
-  // If user is authenticated and trying to access auth pages, show loading screen while redirecting
+  // While redirecting authenticated users away from auth pages
   if (user && isAuthPage) {
     return <LoadingScreen />;
   }
 
-  // Render auth pages directly (standalone, no dashboard panels)
-  if (isAuthPage) {
+  // Public pages (Landing, Login, Signup, Forgot Password, Setup Account, OAuth pages)
+  if (isPublicRoute) {
     return (
-      <main className="flex-1 flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
+      <main className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
         {children}
       </main>
     );
   }
 
-  // Standard dashboard layout for authenticated users (Top bar only, dark background)
+  // Protected application layout
   return (
-    <div className="relative flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="relative flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
       <Header />
-      <main className="flex-1 flex flex-col w-full max-w-7xl mx-auto px-4 py-8">
+
+      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-8">
         {children}
       </main>
+
       <Footer />
     </div>
   );
 }
+
+const LoadingScreen = () => (
+  <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 text-white">
+    <div className="relative flex flex-col items-center">
+      <div className="absolute -inset-4 rounded-full bg-violet-600/10 blur-xl animate-pulse" />
+
+      <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 shadow-[0_0_30px_rgba(139,92,246,0.15)] animate-bounce">
+        <Mail className="h-8 w-8 animate-pulse text-violet-400" />
+      </div>
+
+      <h2 className="mt-6 text-sm font-semibold uppercase tracking-widest text-zinc-400 animate-pulse">
+        Loading Bulkmail
+      </h2>
+    </div>
+  </div>
+);
