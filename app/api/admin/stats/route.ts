@@ -22,18 +22,22 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const [totalUsers, totalCampaigns, campaigns, activeCampaigns] = await Promise.all([
-      prisma.user.count(),
-      prisma.campaign.count(),
-      prisma.campaign.findMany({
-        select: { sentCount: true },
-      }),
-      prisma.campaign.count({
-        where: { status: "sending" },
-      }),
-    ]);
+    const [totalUsers, totalCampaigns, campaigns, activeCampaigns] =
+      await Promise.all([
+        prisma.user.count(),
+        prisma.campaign.count(),
+        prisma.campaign.findMany({
+          select: { sentCount: true },
+        }),
+        prisma.campaign.count({
+          where: { status: "sending" },
+        }),
+      ]);
 
-    const totalEmailsSent = campaigns.reduce((acc, c) => acc + c.sentCount, 0);
+    const totalEmailsSent = campaigns.reduce(
+      (acc: number, c: { sentCount: number }) => acc + c.sentCount,
+      0,
+    );
 
     return NextResponse.json({
       totalUsers,
@@ -43,6 +47,9 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("Admin fetch stats error:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
