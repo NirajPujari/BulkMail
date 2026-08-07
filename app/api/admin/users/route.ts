@@ -37,7 +37,8 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    const formattedUsers = users.map((u) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formattedUsers = users.map((u: any) => ({
       id: u.id,
       name: u.name,
       email: u.email,
@@ -50,7 +51,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(formattedUsers);
   } catch (error) {
     console.error("Admin fetch users error:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -70,7 +74,7 @@ export async function PUT(req: NextRequest) {
     if (id === admin.userId) {
       return NextResponse.json(
         { message: "You cannot change your own admin role" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -88,7 +92,10 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Admin update user error:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -103,13 +110,16 @@ export async function DELETE(req: NextRequest) {
     const id = url.searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ message: "User ID required" }, { status: 400 });
+      return NextResponse.json(
+        { message: "User ID required" },
+        { status: 400 },
+      );
     }
 
     if (id === admin.userId) {
       return NextResponse.json(
         { message: "You cannot delete your own admin account" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -120,6 +130,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
     console.error("Admin delete user error:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
