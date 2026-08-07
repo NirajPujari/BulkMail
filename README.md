@@ -49,7 +49,7 @@
 Create a `.env` file in the root directory:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/bulkmail?schema=public"
+DIRECT_URL="postgresql://user:password@localhost:5432/?schema=public"
 JWT_SECRET="your_secure_random_jwt_and_encryption_secret"
 GOOGLE_CLIENT_ID="your_google_oauth_client_id"
 GOOGLE_CLIENT_SECRET="your_google_oauth_client_secret"

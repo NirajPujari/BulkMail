@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface Campaign {
   id: string;
   subject: string;
@@ -34,15 +36,15 @@ export interface RecipientPreviewModalProps {
 
 export interface CampaignComposerProps {
   subject: string;
-  setSubject: (value: string) => void;
+  setSubject: Dispatch<SetStateAction<string>>
   body: string;
-  setBody: (value: string) => void;
+  setBody: Dispatch<SetStateAction<string>>
   recipientInput: string;
-  setRecipientInput: (value: string) => void;
+  setRecipientInput: Dispatch<SetStateAction<string>>
   variables: string[];
-  setVariables: React.Dispatch<React.SetStateAction<string[]>>;
+  setVariables: Dispatch<SetStateAction<string[]>>;
   recipientItems: RecipientVariableItem[];
-  setRecipientItems: React.Dispatch<React.SetStateAction<RecipientVariableItem[]>>;
+  setRecipientItems: Dispatch<SetStateAction<RecipientVariableItem[]>>;
   googleConnected: boolean;
   googleEmail: string | null;
   remainingQuota?: number;

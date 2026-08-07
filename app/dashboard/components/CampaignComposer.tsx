@@ -71,10 +71,10 @@ export function CampaignComposer({
   const insertMergeTag = (field: "subject" | "body", tagName: string) => {
     const tagText = `{{${tagName}}}`;
     if (field === "subject") {
-      setSubject((prev) => `${prev} ${tagText}`.trim());
+      setSubject((prev: string) => `${prev} ${tagText}`.trim());
       toast.success(`Inserted {{${tagName}}} into subject line`);
     } else {
-      setBody((prev) => `${prev} ${tagText}`);
+      setBody((prev: string) => `${prev} ${tagText}`);
       toast.success(`Inserted {{${tagName}}} into email body`);
     }
   };
@@ -95,7 +95,7 @@ export function CampaignComposer({
     subject,
     body,
     variables,
-    recipientItems
+    recipientItems,
   );
 
   return (
@@ -177,8 +177,8 @@ export function CampaignComposer({
                 <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
                 <span>
                   <strong>Quota Warning:</strong> Selected recipient count (
-                  {effectiveRecipientCount}) exceeds your remaining daily quota (
-                  {remainingQuota}). Reduce recipients or wait for daily reset.
+                  {effectiveRecipientCount}) exceeds your remaining daily quota
+                  ({remainingQuota}). Reduce recipients or wait for daily reset.
                 </span>
               </div>
             )}
@@ -188,7 +188,9 @@ export function CampaignComposer({
               <div className="flex items-center gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs font-medium">
                 <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
                 <span>
-                  <strong>Undefined Merge Tags Used:</strong> The following tags are used in your email template but not defined in your recipient variables:{" "}
+                  <strong>Undefined Merge Tags Used:</strong> The following tags
+                  are used in your email template but not defined in your
+                  recipient variables:{" "}
                   <span className="font-mono text-amber-200 font-bold">
                     {validation.undefinedTags.map((t) => `{{${t}}}`).join(", ")}
                   </span>
@@ -200,7 +202,9 @@ export function CampaignComposer({
               <div className="flex items-center gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs font-medium">
                 <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
                 <span>
-                  <strong>Missing Recipient Values:</strong> {validation.missingValueRecipients.length} recipient(s) have missing or empty values for merge tags used in your template.
+                  <strong>Missing Recipient Values:</strong>{" "}
+                  {validation.missingValueRecipients.length} recipient(s) have
+                  missing or empty values for merge tags used in your template.
                 </span>
               </div>
             )}
@@ -209,7 +213,8 @@ export function CampaignComposer({
           <CardDescription className="text-zinc-400 text-sm">
             {selectedCampaignId ? (
               <span className="text-violet-400 font-semibold">
-                Editing existing campaign. Any edits will update the current record on save/launch.
+                Editing existing campaign. Any edits will update the current
+                record on save/launch.
               </span>
             ) : (
               "Draft an email template with dynamic merge variables (e.g. {{name}}, {{company}}), manage recipients, and preview personalized output."
@@ -227,7 +232,9 @@ export function CampaignComposer({
                 </label>
                 {variables.length > 0 && (
                   <div className="flex items-center gap-1 overflow-x-auto max-w-md">
-                    <span className="text-[10px] text-zinc-500 font-medium shrink-0">Insert Tag:</span>
+                    <span className="text-[10px] text-zinc-500 font-medium shrink-0">
+                      Insert Tag:
+                    </span>
                     {variables.map((v) => (
                       <button
                         key={v}
@@ -337,7 +344,9 @@ export function CampaignComposer({
 
                 {variables.length > 0 && (
                   <div className="flex items-center gap-1 overflow-x-auto max-w-md">
-                    <span className="text-[10px] text-zinc-500 font-medium shrink-0">Insert Tag:</span>
+                    <span className="text-[10px] text-zinc-500 font-medium shrink-0">
+                      Insert Tag:
+                    </span>
                     {variables.map((v) => (
                       <button
                         key={v}
@@ -391,8 +400,8 @@ export function CampaignComposer({
                   !googleConnected
                     ? "Connect a Google account to enable sending"
                     : isQuotaExceeded
-                    ? "Recipient count exceeds remaining daily quota"
-                    : undefined
+                      ? "Recipient count exceeds remaining daily quota"
+                      : undefined
                 }
                 className="gap-2 h-11 bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold transition-all duration-300 shadow-[0_0_15px_rgba(139,92,246,0.25)] hover:shadow-[0_0_25px_rgba(139,92,246,0.4)] rounded-lg border-none flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >

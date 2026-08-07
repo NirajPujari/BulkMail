@@ -212,9 +212,9 @@ export default function Dashboard() {
       toast.success("Personalized campaign queued for background dispatch!");
       setActiveCampaignId(data.campaignId);
       handleClearSelection();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error(error.message || "Could not launch campaign.");
+      toast.error((error as Error).message || "Could not launch campaign.");
       setIsSimulating(false);
     }
   };
@@ -311,11 +311,13 @@ export default function Dashboard() {
         typeof parsed[0] === "object"
       ) {
         setRecipientItems(parsed);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const emailsStr = parsed.map((i: any) => i.email || "").join("\n");
         setRecipientInput(emailsStr);
 
         // Extract all variable keys
         const keysSet = new Set<string>(variables);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         parsed.forEach((item: any) => {
           if (item.variables) {
             Object.keys(item.variables).forEach((k) => keysSet.add(k));
