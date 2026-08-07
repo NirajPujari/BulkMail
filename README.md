@@ -1,6 +1,6 @@
-# 📧 BulkMail — Enterprise Email Dispatch & Campaign Manager
+# 📧 Dootx — Enterprise Email Dispatch & Campaign Manager
 
-**BulkMail** is a full-stack bulk email management and dispatch web application built with **Next.js 16 (App Router)** and **React 19**. It enables users to compose personalized email campaigns, manage recipient lists with custom dynamic merge variables, track real-time dispatch progress, protect daily Gmail quota limits, and execute high-volume email delivery via **Google Gmail API v1** using OAuth 2.0 user account authorization.
+**Dootx** is a full-stack bulk email management and dispatch web application built with **Next.js 16 (App Router)** and **React 19**. It enables users to compose personalized email campaigns, manage recipient lists with custom dynamic merge variables, track real-time dispatch progress, protect daily Gmail quota limits, and execute high-volume email delivery via **Google Gmail API v1** using OAuth 2.0 user account authorization.
 
 ---
 

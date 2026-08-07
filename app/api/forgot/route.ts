@@ -47,8 +47,8 @@ export async function POST(req: NextRequest) {
     try {
       await defaultEmailService.sendEmail({
         to: normalizedEmail,
-        subject: "BulkMail - Password Reset Request",
-        text: `Hello ${user.name},\n\nYou requested to reset your password for BulkMail.\n\nPlease click the link below to reset your password:\n${resetUrl}\n\nThis link will expire in 1 hour.\n\nIf you did not request a password reset, please ignore this email.`,
+        subject: "Dootx - Password Reset Request",
+        text: `Hello ${user.name},\n\nYou requested to reset your password for Dootx.\n\nPlease click the link below to reset your password:\n${resetUrl}\n\nThis link will expire in 1 hour.\n\nIf you did not request a password reset, please ignore this email.`,
       });
     } catch (emailError) {
       console.error("Failed to send transactional reset email:", emailError);

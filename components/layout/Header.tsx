@@ -52,7 +52,7 @@ export function Header() {
               <Mail className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white group-hover:text-zinc-200 transition-colors">
-              Bulkmail
+              Dootx
             </span>
           </Link>
         </div>

@@ -34,7 +34,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(email, password);
-      toast.success("Welcome back to Bulkmail!");
+      toast.success("Welcome back to Dootx!");
     } catch (err) {
       setError("Invalid email or password");
       console.log(err);
@@ -54,7 +54,7 @@ export default function LoginPage() {
           Log in
         </CardTitle>
         <CardDescription className="text-zinc-500 text-sm">
-          Enter your credentials to access your bulkmail dashboard
+          Enter your credentials to access your Dootx dashboard
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

@@ -6,15 +6,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
-# 🤖 Agent Guide for BulkMail
+# 🤖 Agent Guide for Dootx
 
-Welcome to **BulkMail**! This document provides AI agents and developer assistants with a comprehensive overview of the repository's architecture, technology stack, directory structure, development workflows, and key conventions.
+Welcome to **Dootx**! This document provides AI agents and developer assistants with a comprehensive overview of the repository's architecture, technology stack, directory structure, development workflows, and key conventions.
 
 ---
 
 ## 🚀 Project Overview
 
-**BulkMail** is a full-stack bulk email management and dispatch web application built with **Next.js 16 (App Router)** and **React 19**. It enables users to compose email campaigns, manage recipient lists, track real-time dispatch progress, and execute high-volume email delivery via **Google Gmail API v1** using OAuth 2.0 user account authorization.
+**Dootx** is a full-stack bulk email management and dispatch web application built with **Next.js 16 (App Router)** and **React 19**. It enables users to compose email campaigns, manage recipient lists, track real-time dispatch progress, and execute high-volume email delivery via **Google Gmail API v1** using OAuth 2.0 user account authorization.
 
 ---
 
@@ -33,7 +33,7 @@ Welcome to **BulkMail**! This document provides AI agents and developer assistan
 ## 📁 Repository Structure
 
 ```text
-bulkmail/
+dootx/
 ├── app/                      # Next.js 16 App Router pages and API routes
 │   ├── (auth)/               # Authentication routes (login, signup, forgot-password, reset-password)
 │   ├── admin/                # Admin Control Center dashboard UI

@@ -146,7 +146,7 @@ function SetupAccountForm() {
       }
 
       localStorage.setItem("jwt_token", data.token);
-      toast.success("Account setup complete! Welcome to Bulkmail.");
+      toast.success("Account setup complete! Welcome to Dootx.");
       window.location.href = "/dashboard";
     } catch (err) {
       console.error(err);
@@ -201,7 +201,7 @@ function SetupAccountForm() {
           Complete Your Account
         </CardTitle>
         <CardDescription className="text-zinc-400 text-sm">
-          Set up a password for your Bulkmail account to finish registration.
+          Set up a password for your Dootx account to finish registration.
         </CardDescription>
       </CardHeader>
 

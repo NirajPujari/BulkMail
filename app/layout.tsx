@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bulkmail - Send Campaigns Easily",
-  description: "Create and send bulk email campaigns with real-time tracking.",
+  title: "Dootx - Send Email Campaigns Easily",
+  description: "Create and send personalized email campaigns with real-time tracking.",
 };
 
 export default function RootLayout({

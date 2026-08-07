@@ -19,7 +19,7 @@ export default function AuthLayout({
             <Mail className="h-5 w-5 text-primary" />
           </div>
           <span className="text-xl font-bold tracking-tight text-zinc-900">
-            Bulkmail
+            Dootx
           </span>
         </div>
 
@@ -31,7 +31,7 @@ export default function AuthLayout({
               Send email campaigns fast.
             </h1>
             <p className="text-zinc-500 text-sm leading-relaxed">
-              Bulkmail is a professional bulk email sender designed to keep your
+              Dootx is a professional bulk email sender designed to keep your
               marketing workflows simple, structured, and focused. Upload
               contact lists, draft responsive emails, and hit inboxes.
             </p>
@@ -111,7 +111,7 @@ export default function AuthLayout({
 
         {/* Footer info */}
         <div className="relative z-10 text-sm text-zinc-400">
-          © {new Date().getFullYear()} Bulkmail. All rights reserved.
+          © {new Date().getFullYear()} Dootx. All rights reserved.
         </div>
       </div>
 

@@ -26,7 +26,7 @@ export default function Home() {
               <Mail className="h-5 w-5" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white">
-              Bulkmail
+              Dootx
             </span>
           </Link>
 
@@ -161,7 +161,7 @@ export default function Home() {
                 Everything You Need for Enterprise Email Dispatch
               </h2>
               <p className="text-zinc-400 text-base leading-relaxed mb-6">
-                BulkMail provides complete management of drafts, recipient
+                Dootx provides complete management of drafts, recipient
                 lists, transmission logs, and system metrics out of the box.
               </p>
 
@@ -192,7 +192,7 @@ export default function Home() {
                   <div className="h-3 w-3 rounded-full bg-green-500/80" />
                 </div>
                 <span className="text-sm text-zinc-500 font-mono">
-                  bulkmail-dispatcher.log
+                  dootx-dispatcher.log
                 </span>
               </div>
 
@@ -228,7 +228,7 @@ export default function Home() {
       <footer className="border-t border-zinc-900 py-8 text-center text-sm text-zinc-500">
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>
-            © {new Date().getFullYear()} BulkMail Systems. All rights reserved.
+            © {new Date().getFullYear()} Dootx Systems. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-zinc-400">
             <Link

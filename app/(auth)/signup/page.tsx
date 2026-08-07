@@ -87,7 +87,7 @@ export default function SignupPage() {
     setIsSubmitting(true);
     try {
       await signup(name, email, password);
-      toast.success("Account created! Welcome to Bulkmail.");
+      toast.success("Account created! Welcome to Dootx.");
     } catch (err) {
       setError("Failed to create account. Please try again.");
       console.log(err);
@@ -107,7 +107,7 @@ export default function SignupPage() {
           Create Account
         </CardTitle>
         <CardDescription className="text-zinc-500 text-sm">
-          Join Bulkmail to start sending bulk email campaigns.
+          Join Dootx to start sending personalized email campaigns.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

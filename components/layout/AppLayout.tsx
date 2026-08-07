@@ -100,7 +100,7 @@ const LoadingScreen = () => (
       </div>
 
       <h2 className="mt-6 text-sm font-semibold uppercase tracking-widest text-zinc-400 animate-pulse">
-        Loading Bulkmail
+        Loading Dootx
       </h2>
     </div>
   </div>

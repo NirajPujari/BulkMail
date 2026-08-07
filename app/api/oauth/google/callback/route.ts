@@ -121,7 +121,7 @@ export async function GET(req: NextRequest) {
         },
       });
 
-      // Generate BulkMail JWT session token
+      // Generate Dootx JWT session token
       const jwtToken = generateToken({
         userId: user.id,
         name: user.name,
