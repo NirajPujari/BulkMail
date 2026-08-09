@@ -28,11 +28,15 @@ export async function GET(req: NextRequest) {
       req.headers.get("x-real-ip") ||
       "127.0.0.1";
 
-    console.log(`[Open Tracking Triggered] ExecId: ${executionId}, Recipient: ${rawEmail}, IP: ${ipAddress}, UserAgent: ${userAgent}, Prefetch: ${isPrefetch}`);
+    console.log(
+      `[Open Tracking Triggered] ExecId: ${executionId}, Recipient: ${rawEmail}, IP: ${ipAddress}, UserAgent: ${userAgent}, Prefetch: ${isPrefetch}`
+    );
 
     // If request is a pre-fetch attempt by background scanner, return 1x1 PNG without logging open
     if (isPrefetch) {
-      console.log(`[Open Tracking Ignored] Filtered out background prefetch request for ${rawEmail}`);
+      console.log(
+        `[Open Tracking Ignored] Filtered out background prefetch request for ${rawEmail}`
+      );
       return returnPixelResponse();
     }
 
@@ -52,6 +56,10 @@ export async function GET(req: NextRequest) {
 
           if (recipientRecord) {
             const now = new Date();
+            const newOpenCount = recipientRecord.openCount + 1;
+
+            // Only mark opened = true on the 2ND VIEW or later (ignoring initial 1st automated server scan)
+            const isSecondViewOrMore = newOpenCount >= 2;
 
             // Record open event log
             await prisma.campaignOpenEvent.create({
@@ -64,17 +72,23 @@ export async function GET(req: NextRequest) {
               },
             });
 
-            // Update recipient status to opened
+            // Update recipient status - mark opened = true ONLY on 2nd view or later
             await prisma.campaignRecipient.update({
               where: { id: recipientRecord.id },
               data: {
-                opened: true,
-                openedAt: recipientRecord.openedAt || now,
-                openCount: { increment: 1 },
+                openCount: newOpenCount,
+                opened: isSecondViewOrMore || recipientRecord.opened,
+                openedAt: isSecondViewOrMore
+                  ? recipientRecord.openedAt || now
+                  : recipientRecord.openedAt,
               },
             });
 
-            console.log(`[Open Tracked Successfully] Recorded open for ${email} in execution ${executionId}`);
+            console.log(
+              `[Open Tracking Update] Recipient ${email} - Fetch #${newOpenCount}. Marked Opened: ${
+                isSecondViewOrMore || recipientRecord.opened
+              }`
+            );
           }
         } catch (dbError) {
           console.error("Failed to record email open tracking event:", dbError);
