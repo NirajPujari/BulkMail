@@ -200,6 +200,21 @@ export function Header() {
               </Link>
 
               <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-zinc-400">
+                {user?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className={cn(
+                      "flex items-center gap-1.5 transition-colors hover:text-white",
+                      pathname === "/admin"
+                        ? "text-violet-400 font-semibold"
+                        : "",
+                    )}
+                  >
+                    <Shield className="h-4 w-4" />
+                    Admin Dashboard
+                  </Link>
+                )}
+
                 <Link
                   href="/dashboard"
                   className={cn(

@@ -117,7 +117,7 @@ function ResetPasswordForm() {
           </div>
 
           <div className="space-y-2">
-            <CardTitle className="text-xl font-bold tracking-tight text-zinc-900">
+            <CardTitle className="text-xl font-bold tracking-tight text-zinc-200">
               Password Reset Complete
             </CardTitle>
             <p className="text-zinc-500 text-sm leading-relaxed max-w-sm mx-auto">
@@ -143,7 +143,7 @@ function ResetPasswordForm() {
   return (
     <Card className="hover:shadow-md transition-shadow bg-card border-border border">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-xl font-bold tracking-tight text-zinc-900">
+        <CardTitle className="text-xl font-bold tracking-tight text-zinc-200">
           Set New Password
         </CardTitle>
         <CardDescription className="text-zinc-500 text-sm">
@@ -161,7 +161,7 @@ function ResetPasswordForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* New Password */}
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
+            <label className="text-sm font-semibold uppercase tracking-wider text-zinc-200 flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5" />
               New Password
             </label>
@@ -172,7 +172,7 @@ function ResetPasswordForm() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={isSubmitting}
-                className="border-0 rounded-md px-2 pr-10 text-zinc-900 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="border-0 rounded-md px-2 pr-10 text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0"
                 required
               />
               <button
@@ -191,7 +191,7 @@ function ResetPasswordForm() {
 
           {/* Confirm Password */}
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
+            <label className="text-sm font-semibold uppercase tracking-wider text-zinc-200 flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5" />
               Confirm New Password
             </label>
@@ -201,7 +201,7 @@ function ResetPasswordForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isSubmitting}
-              className="border-0 rounded-md px-2 text-zinc-900 focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="border-0 rounded-md px-2 text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0"
               required
             />
           </div>
@@ -225,7 +225,7 @@ function ResetPasswordForm() {
         <div className="text-center text-sm mt-6">
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-zinc-900 transition-colors text-sm uppercase tracking-wider font-semibold"
+            className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-zinc-200 transition-colors text-sm uppercase tracking-wider font-semibold"
           >
             <ArrowLeft className="h-3 w-3" />
             Back to Log In

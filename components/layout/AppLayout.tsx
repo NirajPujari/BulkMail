@@ -7,7 +7,13 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { Mail } from "lucide-react";
 
-const AUTH_PAGES = ["/login", "/signup", "/forgot-password", "/setup-account"];
+const AUTH_PAGES = [
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/setup-account",
+  "/reset-password",
+];
 
 const PUBLIC_ROUTES = [
   "/",
