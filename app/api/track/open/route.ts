@@ -13,13 +13,31 @@ export async function GET(req: NextRequest) {
     const executionId = url.searchParams.get("c");
     const rawEmail = url.searchParams.get("r");
 
+    // Check for pre-fetch headers sent by email clients/scanners
+    const purposeHeader =
+      req.headers.get("purpose") ||
+      req.headers.get("sec-purpose") ||
+      req.headers.get("x-purpose");
+
+    const isPrefetch =
+      purposeHeader && purposeHeader.toLowerCase().includes("prefetch");
+
+    const userAgent = req.headers.get("user-agent") || "Unknown";
+    const ipAddress =
+      req.headers.get("x-forwarded-for")?.split(",")[0] ||
+      req.headers.get("x-real-ip") ||
+      "127.0.0.1";
+
+    console.log(`[Open Tracking Triggered] ExecId: ${executionId}, Recipient: ${rawEmail}, IP: ${ipAddress}, UserAgent: ${userAgent}, Prefetch: ${isPrefetch}`);
+
+    // If request is a pre-fetch attempt by background scanner, return 1x1 PNG without logging open
+    if (isPrefetch) {
+      console.log(`[Open Tracking Ignored] Filtered out background prefetch request for ${rawEmail}`);
+      return returnPixelResponse();
+    }
+
     if (executionId && rawEmail) {
       const email = rawEmail.toLowerCase().trim();
-      const ipAddress =
-        req.headers.get("x-forwarded-for")?.split(",")[0] ||
-        req.headers.get("x-real-ip") ||
-        "127.0.0.1";
-      const userAgent = req.headers.get("user-agent") || undefined;
 
       // Process open event asynchronously without blocking response
       (async () => {
@@ -55,6 +73,8 @@ export async function GET(req: NextRequest) {
                 openCount: { increment: 1 },
               },
             });
+
+            console.log(`[Open Tracked Successfully] Recorded open for ${email} in execution ${executionId}`);
           }
         } catch (dbError) {
           console.error("Failed to record email open tracking event:", dbError);
@@ -65,7 +85,10 @@ export async function GET(req: NextRequest) {
     console.error("Tracking pixel error:", error);
   }
 
-  // Always return 1x1 transparent PNG with strict no-cache headers
+  return returnPixelResponse();
+}
+
+function returnPixelResponse() {
   return new NextResponse(TRANSPARENT_PNG, {
     status: 200,
     headers: {
