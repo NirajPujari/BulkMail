@@ -79,47 +79,47 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if there is an active running campaign execution
-    const activeExecution = await prisma.campaignExecution.findFirst({
+    // Check if there is an active running campaign
+    const activeCampaign = await prisma.campaign.findFirst({
       where: {
         userId,
         status: "sending",
       },
     });
 
-    if (activeExecution) {
+    if (activeCampaign) {
       return NextResponse.json(
-        { message: "A campaign execution is already running. Please wait for it to complete." },
+        { message: "A campaign is already running. Please wait for it to complete." },
         { status: 400 }
       );
     }
 
     const recipientsDbPayload = JSON.stringify(targetRecipients);
 
-    // 1. Manage Parent Campaign record for Dashboard Campaign History (Keep unique per campaign template)
-    let parentCampaignId = id;
-    if (parentCampaignId) {
-      const existing = await prisma.campaign.findUnique({ where: { id: parentCampaignId } });
-      if (existing && existing.userId === userId) {
-        await prisma.campaign.update({
-          where: { id: parentCampaignId },
-          data: {
-            subject,
-            body,
-            recipients: recipientsDbPayload,
-            status: "sending",
-            sentCount: 0,
-            totalCount: targetRecipients.length,
-            logs: `[System] Launching campaign: "${subject}"...\n[System] Found ${targetRecipients.length} recipient(s).`,
-          },
-        });
-      } else {
-        parentCampaignId = null;
+    // Create or retrieve campaign in DB
+    let campaignId = id;
+    if (campaignId) {
+      // Verify ownership of the draft
+      const existing = await prisma.campaign.findUnique({ where: { id: campaignId } });
+      if (!existing || existing.userId !== userId) {
+        return NextResponse.json({ message: "Forbidden or not found" }, { status: 403 });
       }
-    }
-
-    if (!parentCampaignId) {
-      const newCampaign = await prisma.campaign.create({
+      
+      // Update existing campaign to sending status
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: {
+          status: "sending",
+          subject,
+          body,
+          recipients: recipientsDbPayload,
+          totalCount: targetRecipients.length,
+          sentCount: 0,
+          logs: `[System] Resuming draft campaign: "${subject}"...\n[System] Found ${targetRecipients.length} recipient(s).`,
+        },
+      });
+    } else {
+      const campaign = await prisma.campaign.create({
         data: {
           subject,
           body,
@@ -127,67 +127,19 @@ export async function POST(req: NextRequest) {
           status: "sending",
           sentCount: 0,
           totalCount: targetRecipients.length,
-          logs: `[System] Initializing new campaign: "${subject}"...\n[System] Found ${targetRecipients.length} recipient(s).`,
+          logs: `[System] Initializing personalized campaign: "${subject}"...\n[System] Found ${targetRecipients.length} recipient(s).`,
           userId,
         },
       });
-      parentCampaignId = newCampaign.id;
+      campaignId = campaign.id;
     }
 
-    // 2. ALWAYS Create a BRAND NEW CampaignExecution record for Analytics (Bug 2 fix!)
-    const campaignExecution = await prisma.campaignExecution.create({
-      data: {
-        campaignId: parentCampaignId,
-        subject,
-        body,
-        recipients: recipientsDbPayload,
-        status: "sending",
-        sentCount: 0,
-        totalCount: targetRecipients.length,
-        logs: `[System] Initialized campaign execution for analytics...\n[System] Parent Campaign ID: ${parentCampaignId}`,
-        userId,
-      },
-    });
-
-    const executionId = campaignExecution.id;
-
-    // Create CampaignRecipient records linked to executionId for open tracking analytics
-    try {
-      await prisma.campaignRecipient.createMany({
-        data: targetRecipients.map((r) => ({
-          executionId,
-          email: r.email.toLowerCase().trim(),
-          status: "sent",
-          variables: (r.variables as any) || {},
-          opened: false,
-          openCount: 0,
-        })),
-        skipDuplicates: true,
-      });
-    } catch (createErr) {
-      console.error("Failed to create campaign recipient tracking rows:", createErr);
-    }
-
-    // Determine Base URL for Open Tracking Pixel
-    const origin = req.headers.get("origin") || req.nextUrl.origin || "http://localhost:3000";
-    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || origin;
-
-    // Trigger background send process via Gmail API using executionId
-    sendCampaignBackground(
-      userId,
-      parentCampaignId,
-      executionId,
-      subject,
-      body,
-      targetRecipients,
-      user.googleEmail,
-      appUrl
-    );
+    // Trigger background send process via Gmail API
+    sendCampaignBackground(userId, campaignId, subject, body, targetRecipients, user.googleEmail);
 
     return NextResponse.json({
       message: "Campaign queued and starting personalized execution in background via Gmail API.",
-      campaignId: parentCampaignId,
-      executionId: executionId,
+      campaignId,
     });
   } catch (error) {
     console.error("Queue campaign error:", error);
@@ -197,37 +149,30 @@ export async function POST(req: NextRequest) {
 
 async function sendCampaignBackground(
   userId: string,
-  parentCampaignId: string,
-  executionId: string,
+  campaignId: string,
   subject: string,
   body: string,
   recipients: RecipientVariableItem[],
-  senderEmail: string,
-  appUrl: string
+  senderEmail: string
 ) {
   let sent = 0;
   let failed = 0;
   let logsAccumulator = "";
 
-  // Helper to append logs to both Execution and parent Campaign
+  // Helper to append logs to DB
   const appendLog = async (msg: string) => {
     try {
-      const exec = await prisma.campaignExecution.findUnique({
-        where: { id: executionId },
+      const campaign = await prisma.campaign.findUnique({
+        where: { id: campaignId },
         select: { logs: true },
       });
-      const currentLogs = exec?.logs || "";
+      const currentLogs = campaign?.logs || "";
       logsAccumulator = currentLogs ? `${currentLogs}\n${msg}` : msg;
 
-      await prisma.campaignExecution.update({
-        where: { id: executionId },
+      await prisma.campaign.update({
+        where: { id: campaignId },
         data: { logs: logsAccumulator },
       });
-
-      await prisma.campaign.update({
-        where: { id: parentCampaignId },
-        data: { logs: logsAccumulator },
-      }).catch(() => {});
     } catch (e) {
       console.error("Failed to update logs:", e);
     }
@@ -251,17 +196,7 @@ async function sendCampaignBackground(
 
     // Render personalized subject and body for this recipient
     const personalizedSubject = renderTemplate(subject, item.variables);
-    let personalizedBody = renderTemplate(body, item.variables);
-
-    // Inject Open Tracking Pixel pointing to executionId
-    const trackingPixelUrl = `${appUrl}/api/track/open?c=${executionId}&r=${encodeURIComponent(email)}`;
-    const trackingPixelHtml = `<img src="${trackingPixelUrl}" width="1" height="1" style="display:none !important; width:1px; height:1px; opacity:0;" alt="" />`;
-
-    if (personalizedBody.toLowerCase().includes("</body>")) {
-      personalizedBody = personalizedBody.replace(/<\/body>/i, `${trackingPixelHtml}</body>`);
-    } else {
-      personalizedBody = `${personalizedBody}\n\n${trackingPixelHtml}`;
-    }
+    const personalizedBody = renderTemplate(body, item.variables);
 
     await appendLog(`[Sending] Personalizing & dispatching via Gmail API to ${email}...`);
 
@@ -282,16 +217,12 @@ async function sendCampaignBackground(
       await appendLog(`[Failed] Error dispatching to ${email}: ${err}`);
     }
 
-    // Update sent count periodically for both Execution and Parent Campaign
+    // Update sent count periodically
     try {
-      await prisma.campaignExecution.update({
-        where: { id: executionId },
+      await prisma.campaign.update({
+        where: { id: campaignId },
         data: { sentCount: sent },
       });
-      await prisma.campaign.update({
-        where: { id: parentCampaignId },
-        data: { sentCount: sent },
-      }).catch(() => {});
     } catch (e) {
       console.error("Failed to update sent count:", e);
     }
@@ -305,14 +236,10 @@ async function sendCampaignBackground(
   await appendLog(`[Summary] Sent: ${sent}, Failed: ${failed}, Total: ${recipients.length}`);
 
   try {
-    await prisma.campaignExecution.update({
-      where: { id: executionId },
+    await prisma.campaign.update({
+      where: { id: campaignId },
       data: { status: finalStatus },
     });
-    await prisma.campaign.update({
-      where: { id: parentCampaignId },
-      data: { status: finalStatus },
-    }).catch(() => {});
   } catch (e) {
     console.error("Failed to set final status:", e);
   }

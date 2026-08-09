@@ -29,76 +29,18 @@ model User {
 }
 
 model Campaign {
-  id         String              @id @default(uuid())
+  id         String   @id @default(uuid())
   subject    String
   body       String
   recipients String
-  status     String              @default("draft")
-  sentCount  Int                 @default(0)
-  totalCount Int                 @default(0)
-  logs       String              @default("")
+  status     String   @default("draft")
+  sentCount  Int      @default(0)
+  totalCount Int      @default(0)
+  logs       String   @default("")
   userId     String
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  executions CampaignExecution[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("campaigns")
-}
-
-model CampaignExecution {
-  id               String              @id @default(uuid())
-  campaignId       String?
-  subject          String
-  body             String
-  recipients       String
-  status           String              @default("sending")
-  sentCount        Int                 @default(0)
-  totalCount       Int                 @default(0)
-  logs             String              @default("")
-  userId           String
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
-  campaign         Campaign?           @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  recipientRecords CampaignRecipient[]
-  openEvents       CampaignOpenEvent[]
-
-  @@index([campaignId])
-  @@index([userId])
-  @@map("campaign_executions")
-}
-
-model CampaignRecipient {
-  id          String            @id @default(uuid())
-  executionId String
-  email       String
-  status      String            @default("sent")
-  variables   Json?
-  opened      Boolean           @default(false)
-  openedAt    DateTime?
-  openCount   Int               @default(0)
-  createdAt   DateTime          @default(now())
-  execution   CampaignExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  openEvents  CampaignOpenEvent[]
-
-  @@unique([executionId, email])
-  @@index([executionId])
-  @@index([executionId, email])
-  @@map("campaign_recipients")
-}
-
-model CampaignOpenEvent {
-  id          String            @id @default(uuid())
-  executionId String
-  recipientId String
-  openedAt    DateTime          @default(now())
-  ipAddress   String?
-  userAgent   String?
-  execution   CampaignExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  recipient   CampaignRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
-
-  @@index([executionId])
-  @@index([executionId, recipientId])
-  @@index([openedAt])
-  @@map("campaign_open_events")
 }
