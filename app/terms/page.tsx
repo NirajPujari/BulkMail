@@ -1,12 +1,5 @@
 import Link from "next/link";
-import {
-  FileText,
-  ArrowLeft,
-  ShieldAlert,
-  CheckCircle2,
-  AlertTriangle,
-  Scale,
-} from "lucide-react";
+import { ShieldAlert, CheckCircle2, AlertTriangle, Scale } from "lucide-react";
 
 export const metadata = {
   title: "Terms of Service — Dootx",
@@ -19,26 +12,7 @@ export default function TermsOfServicePage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-violet-500 selection:text-white flex flex-col justify-between">
-      {/* Header / Nav */}
-      <header className="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
-          </Link>
-          <div className="flex items-center gap-2 font-bold text-white tracking-tight text-lg">
-            <FileText className="h-5 w-5 text-violet-400" />
-            <span>Dootx Terms of Service</span>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12 flex-1 space-y-10">
-        {/* Banner Section */}
+      <main className="max-w-4xl mx-auto px-6 space-y-10">
         <div className="space-y-4 text-center border-b border-zinc-850 pb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider">
             <Scale className="h-3.5 w-3.5" /> Legal Agreement
@@ -221,41 +195,7 @@ export default function TermsOfServicePage() {
             Google OAuth policies.
           </p>
         </section>
-
-        {/* Section 9: Governing Law & Contact */}
-        <section className="space-y-4 border-t border-zinc-850 pt-8">
-          <h2 className="text-xl font-bold text-white tracking-tight">
-            9. Contact Information
-          </h2>
-          <p className="text-sm text-zinc-400 leading-relaxed">
-            For any legal inquiries, compliance questions, or terms
-            clarification, please contact our team at:
-          </p>
-          <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-mono text-violet-300">
-            Legal & Support Email: legal@dootx.com
-          </div>
-        </section>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-zinc-900 py-8 text-center text-xs text-zinc-500">
-        <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>
-            © {new Date().getFullYear()} Dootx Systems. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="text-violet-400 font-semibold">
-              Terms of Service
-            </Link>
-            <Link
-              href="/privacy"
-              className="hover:text-zinc-300 transition-colors"
-            >
-              Privacy Policy
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

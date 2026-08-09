@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, Mail, LogOut, LayoutDashboard, Shield, Settings } from "lucide-react";
+import {
+  Bell,
+  Mail,
+  LogOut,
+  LayoutDashboard,
+  Shield,
+  Settings,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -14,10 +21,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/Auth";
+import { usePathname } from "next/navigation";
+
+const PUBLIC_ROUTES = [
+  "/",
+  "/about",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/setup-account",
+  "/oauth/google/success",
+  "/oauth/google/error",
+];
+
+function isPublicRoute(pathname: string) {
+  if (PUBLIC_ROUTES.includes(pathname)) {
+    return true;
+  }
+
+  // Keep all Google OAuth callback pages public
+  if (pathname.startsWith("/oauth/google/")) {
+    return true;
+  }
+
+  return false;
+}
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, logout } = useAuth();
+  const pathname = usePathname();
+
+  const publicPage = isPublicRoute(pathname);
 
   const handleLogout = async () => {
     try {
@@ -31,8 +69,12 @@ export function Header() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
@@ -44,101 +86,218 @@ export function Header() {
           : "bg-zinc-950 text-zinc-100 border-zinc-900",
       )}
     >
-      <div className="flex h-16 items-center justify-between px-6 max-w-7xl mx-auto w-full">
-        {/* Brand/Logo */}
-        <div className="flex items-center space-x-6">
-          <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-600 text-white group-hover:bg-violet-500 transition-colors shadow-[0_0_15px_rgba(139,92,246,0.3)]">
-              <Mail className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white group-hover:text-zinc-200 transition-colors">
-              Dootx
-            </span>
-          </Link>
-        </div>
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
+        {/* =========================================================
+            PUBLIC HEADER
+            Visible on:
+            /
+            /about
+            /contact
+            /privacy
+            /terms
+            /login
+            /signup
+            etc.
+        ========================================================= */}
 
-        {/* Right Actions */}
-        <div className="flex items-center space-x-4">
-          <button
-            type="button"
-            className="relative rounded-full p-2 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 transition-colors focus:outline-none cursor-pointer"
-          >
-            <Bell className="size-5" />
-            <span className="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-destructive"></span>
-            <span className="sr-only">Notifications</span>
-          </button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger className="rounded-full overflow-hidden hover:bg-zinc-900 p-0.5 outline-none cursor-pointer border border-zinc-800">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-zinc-800 text-zinc-100 font-semibold text-sm">
-                  {user?.name
-                    ? user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()
-                    : "US"}
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-56 mt-2 bg-zinc-900 border border-zinc-800 text-zinc-100"
-            >
-              <div className="flex flex-col space-y-1 p-2">
-                <p className="text-sm font-medium leading-none text-zinc-200">
-                  {user?.name}
-                </p>
-                <p className="text-sm leading-none text-zinc-500">
-                  {user?.email}
-                </p>
-              </div>
-              <DropdownMenuSeparator className="bg-zinc-800" />
-              <DropdownMenuGroup>
-                <DropdownMenuItem className="p-0 hover:bg-zinc-800 focus:bg-zinc-800">
-                  <Link
-                    href="/dashboard"
-                    className="flex w-full items-center px-2 py-1.5 cursor-pointer text-zinc-300 hover:text-white"
-                  >
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Dashboard
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem className="p-0 hover:bg-zinc-800 focus:bg-zinc-800">
-                  <Link
-                    href="/settings"
-                    className="flex w-full items-center px-2 py-1.5 cursor-pointer text-zinc-300 hover:text-white"
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Account Settings
-                  </Link>
-                </DropdownMenuItem>
-
-                {user?.role === "admin" && (
-                  <DropdownMenuItem className="p-0 hover:bg-zinc-800 focus:bg-zinc-800">
-                    <Link
-                      href="/admin"
-                      className="flex w-full items-center px-2 py-1.5 cursor-pointer text-violet-400 hover:text-violet-300 font-medium"
-                    >
-                      <Shield className="mr-2 h-4 w-4 text-violet-400" />
-                      Admin Control Center
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator className="bg-zinc-800" />
-              <DropdownMenuItem
-                className="text-destructive focus:bg-destructive/10 cursor-pointer hover:bg-destructive/10"
-                onClick={handleLogout}
+        {publicPage ? (
+          <>
+            {/* Brand + Public Navigation */}
+            <div className="flex items-center gap-8">
+              <Link
+                href="/"
+                className="flex items-center gap-2.5 font-bold text-white tracking-tight text-lg"
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white">
+                  <Mail className="h-4 w-4" />
+                </div>
+
+                <span>DootX</span>
+              </Link>
+
+              <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-zinc-400">
+                <Link
+                  href="/about"
+                  className="hover:text-white transition-colors"
+                >
+                  About
+                </Link>
+
+                <Link
+                  href="/contact"
+                  className="hover:text-white transition-colors"
+                >
+                  Contact
+                </Link>
+
+                <Link
+                  href="/privacy"
+                  className="hover:text-white transition-colors"
+                >
+                  Privacy
+                </Link>
+
+                <Link
+                  href="/terms"
+                  className="hover:text-white transition-colors"
+                >
+                  Terms
+                </Link>
+              </nav>
+            </div>
+
+            {/* Public Header Right Side */}
+            <div className="flex items-center gap-3">
+              {!user && (
+                <>
+                  <Link
+                    href="/login"
+                    className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white transition-colors"
+                  >
+                    Sign In
+                  </Link>
+
+                  <Link
+                    href="/signup"
+                    className="inline-flex items-center justify-center rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500 transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+
+              {user && (
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500 transition-colors"
+                >
+                  Dashboard
+                </Link>
+              )}
+            </div>
+          </>
+        ) : (
+          /* =========================================================
+             PROTECTED HEADER
+             Only DootX + user controls
+          ========================================================= */
+          <>
+            {/* DootX Home Button */}
+            <Link
+              href="/"
+              className="group flex items-center gap-2.5 font-bold text-white tracking-tight text-lg"
+              title="Back to DootX home"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white transition-colors group-hover:bg-violet-500">
+                <Mail className="h-4 w-4" />
+              </div>
+
+              <span className="group-hover:text-violet-300 transition-colors">
+                DootX
+              </span>
+            </Link>
+
+            {/* Protected Page Right Actions */}
+            <div className="flex items-center space-x-4">
+              {/* Notifications */}
+              <button
+                type="button"
+                className="relative rounded-full p-2 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 transition-colors focus:outline-none cursor-pointer"
+              >
+                <Bell className="size-5" />
+
+                <span className="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-destructive" />
+
+                <span className="sr-only">Notifications</span>
+              </button>
+
+              {/* User Menu */}
+              {user && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="rounded-full overflow-hidden hover:bg-zinc-900 p-0.5 outline-none cursor-pointer border border-zinc-800">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-zinc-800 text-zinc-100 font-semibold text-sm">
+                        {user?.name
+                          ? user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()
+                          : "US"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56 mt-2 bg-zinc-900 border border-zinc-800 text-zinc-100"
+                  >
+                    {/* User Information */}
+                    <div className="flex flex-col space-y-1 p-2">
+                      <p className="text-sm font-medium leading-none text-zinc-200">
+                        {user?.name}
+                      </p>
+
+                      <p className="text-sm leading-none text-zinc-500">
+                        {user?.email}
+                      </p>
+                    </div>
+
+                    <DropdownMenuSeparator className="bg-zinc-800" />
+
+                    <DropdownMenuGroup>
+                      {/* Dashboard */}
+                      <DropdownMenuItem className="p-0 hover:bg-zinc-800 focus:bg-zinc-800">
+                        <Link
+                          href="/dashboard"
+                          className="flex w-full items-center px-2 py-1.5 cursor-pointer text-zinc-300 hover:text-white"
+                        >
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+
+                      {/* Settings */}
+                      <DropdownMenuItem className="p-0 hover:bg-zinc-800 focus:bg-zinc-800">
+                        <Link
+                          href="/settings"
+                          className="flex w-full items-center px-2 py-1.5 cursor-pointer text-zinc-300 hover:text-white"
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          Account Settings
+                        </Link>
+                      </DropdownMenuItem>
+
+                      {/* Admin */}
+                      {user?.role === "admin" && (
+                        <DropdownMenuItem className="p-0 hover:bg-zinc-800 focus:bg-zinc-800">
+                          <Link
+                            href="/admin"
+                            className="flex w-full items-center px-2 py-1.5 cursor-pointer text-violet-400 hover:text-violet-300 font-medium"
+                          >
+                            <Shield className="mr-2 h-4 w-4 text-violet-400" />
+                            Admin Control Center
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuGroup>
+
+                    <DropdownMenuSeparator className="bg-zinc-800" />
+
+                    {/* Logout */}
+                    <DropdownMenuItem
+                      className="text-destructive focus:bg-destructive/10 cursor-pointer hover:bg-destructive/10"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </header>
   );

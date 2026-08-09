@@ -1,7 +1,5 @@
-import Link from "next/link";
 import {
   Mail,
-  ArrowLeft,
   Cpu,
   ShieldCheck,
   Sparkles,
@@ -19,28 +17,7 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-violet-500 selection:text-white flex flex-col justify-between">
-      {/* Top Navbar */}
-      <header className="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
-          </Link>
-          <div className="flex items-center gap-2.5 font-bold text-white tracking-tight text-lg">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-600 text-white">
-              <Mail className="h-4 w-4" />
-            </div>
-            <span>About Dootx</span>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12 flex-1 space-y-12">
-        {/* Banner Section */}
+      <main className="max-w-4xl mx-auto px-6 space-y-12">
         <div className="space-y-4 text-center border-b border-zinc-850 pb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider">
             <Sparkles className="h-3.5 w-3.5" /> High-Deliverability Campaign
@@ -156,39 +133,6 @@ export default function AboutPage() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-zinc-900 py-8 text-center text-xs text-zinc-500">
-        <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>
-            &copy; {new Date().getFullYear()} Dootx. Developed by{" "}
-            <strong className="text-white">Niraj Pujari</strong>.
-          </p>
-          <div className="flex items-center gap-4 text-zinc-400">
-            <a
-              href="mailto:nirajrokx99@gmail.com"
-              className="text-violet-400 hover:text-violet-300"
-            >
-              nirajrokx99@gmail.com
-            </a>
-            <Link
-              href="/contact"
-              className="hover:text-white transition-colors"
-            >
-              Contact
-            </Link>
-            <Link href="/terms" className="hover:text-white transition-colors">
-              Terms
-            </Link>
-            <Link
-              href="/privacy"
-              className="hover:text-white transition-colors"
-            >
-              Privacy
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

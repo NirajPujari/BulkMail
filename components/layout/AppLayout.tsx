@@ -11,97 +11,188 @@ const AUTH_PAGES = ["/login", "/signup", "/forgot-password", "/setup-account"];
 
 const PUBLIC_ROUTES = [
   "/",
+  "/about",
+  "/contact",
+  "/privacy",
+  "/terms",
+
   ...AUTH_PAGES,
+
   "/oauth/google/success",
   "/oauth/google/error",
 ];
+
+function isPublicRoute(pathname: string) {
+  // Exact public routes
+  if (PUBLIC_ROUTES.includes(pathname)) {
+    return true;
+  }
+
+  // Public OAuth routes
+  if (pathname.startsWith("/oauth/google/")) {
+    return true;
+  }
+
+  return false;
+}
+
+function isAuthPage(pathname: string) {
+  return AUTH_PAGES.includes(pathname);
+}
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const setMou = () => {
-      setMounted(true);
-    };
-    setMou();
+    setMounted(true);
   }, []);
 
-  const isAuthPage = AUTH_PAGES.includes(pathname);
-  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+  const publicRoute = isPublicRoute(pathname);
+  const authPage = isAuthPage(pathname);
 
   useEffect(() => {
-    if (loading || !mounted) return;
+    if (!mounted || loading) return;
 
-    // Redirect unauthenticated users away from protected pages
-    if (!user && !isPublicRoute) {
+    // --------------------------------------------------
+    // 1. PROTECTED ROUTE
+    // --------------------------------------------------
+    // User is not logged in and is trying to access
+    // anything that is not explicitly public.
+    //
+    // Example:
+    // /dashboard
+    // /settings
+    // /admin
+    //
+    // -> redirect to login
+    // --------------------------------------------------
+
+    if (!user && !publicRoute) {
       router.replace("/login");
       return;
     }
 
-    // Redirect authenticated users away from auth pages
-    if (user && isAuthPage) {
+    // --------------------------------------------------
+    // 2. AUTH PAGE
+    // --------------------------------------------------
+    // User is already logged in but tries to access:
+    // /login
+    // /signup
+    // etc.
+    //
+    // -> redirect to dashboard
+    // --------------------------------------------------
+
+    if (user && authPage) {
       router.replace("/dashboard");
     }
-  }, [user, loading, mounted, isAuthPage, isPublicRoute, router]);
+  }, [user, loading, mounted, publicRoute, authPage, router]);
 
+  // --------------------------------------------------
   // Prevent hydration mismatch
+  // --------------------------------------------------
+
   if (!mounted) {
     return <LoadingScreen />;
   }
 
-  // Wait until auth restoration completes
+  // --------------------------------------------------
+  // Wait for authentication state to restore
+  // --------------------------------------------------
+
   if (loading) {
     return <LoadingScreen />;
   }
 
-  // While redirecting from protected pages
-  if (!user && !isPublicRoute) {
+  // --------------------------------------------------
+  // Unauthenticated user trying to access a protected
+  // route. Redirect is happening in the effect above.
+  // --------------------------------------------------
+
+  if (!user && !publicRoute) {
     return <LoadingScreen />;
   }
 
-  // While redirecting authenticated users away from auth pages
-  if (user && isAuthPage) {
+  // --------------------------------------------------
+  // Authenticated user trying to access an auth page.
+  // Redirect is happening in the effect above.
+  // --------------------------------------------------
+
+  if (user && authPage) {
     return <LoadingScreen />;
   }
 
-  // Public pages (Landing, Login, Signup, Forgot Password, Setup Account, OAuth pages)
-  if (isPublicRoute) {
+  // --------------------------------------------------
+  // PUBLIC ROUTES
+  // --------------------------------------------------
+  //
+  // These pages are accessible directly without login.
+  //
+  // /
+  // /about
+  // /contact
+  // /privacy
+  // /terms
+  // /login
+  // /signup
+  // /forgot-password
+  // /setup-account
+  // /oauth/google/*
+  //
+  // They don't get the protected application layout.
+  // --------------------------------------------------
+
+  if (publicRoute && authPage) {
+    return <>{children}</>;
+  }
+
+  if (publicRoute) {
     return (
-      <main className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
-        {children}
-      </main>
+      <>
+        <Header />
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-8">
+          {children}
+        </main>
+        <Footer />
+      </>
     );
   }
 
-  // Protected application layout
+  // --------------------------------------------------
+  // PROTECTED ROUTES
+  // --------------------------------------------------
+  //
+  // At this point:
+  //
+  // user === authenticated
+  // publicRoute === false
+  //
+  // Therefore the page is protected.
+  // --------------------------------------------------
+
   return (
-    <div className="relative flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100">
       <Header />
 
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-8">
         {children}
       </main>
-
-      <Footer />
     </div>
   );
 }
 
 const LoadingScreen = () => (
-  <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 text-white">
-    <div className="relative flex flex-col items-center">
-      <div className="absolute -inset-4 rounded-full bg-violet-600/10 blur-xl animate-pulse" />
-
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 shadow-[0_0_30px_rgba(139,92,246,0.15)] animate-bounce">
-        <Mail className="h-8 w-8 animate-pulse text-violet-400" />
-      </div>
-
-      <h2 className="mt-6 text-sm font-semibold uppercase tracking-widest text-zinc-400 animate-pulse">
-        Loading Dootx
-      </h2>
+  <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center">
+    <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 shadow-[0_0_30px_rgba(139,92,246,0.15)] animate-bounce">
+      <Mail className="h-8 w-8 animate-pulse text-violet-400" />
     </div>
+
+    <h2 className="mt-6 text-sm font-semibold uppercase tracking-widest text-zinc-400 animate-pulse">
+      Loading Dootx
+    </h2>
   </div>
 );
