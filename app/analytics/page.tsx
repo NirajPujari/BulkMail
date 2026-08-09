@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchRequest } from "@/lib/api";
 import { Campaign } from "@/types/campaign";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -163,7 +162,7 @@ export default function OverallAnalyticsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {campaigns.map((c) => (
-                <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
+                <Link key={c.id} href={`/analytics/campaign/${c.id}`}>
                   <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all cursor-pointer group space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="font-bold text-sm text-white group-hover:text-violet-300 transition-colors line-clamp-1">
