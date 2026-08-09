@@ -7,32 +7,17 @@ import { fetchRequest } from "@/lib/api";
 import { CampaignAnalyticsData } from "@/types/campaign";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ArrowLeft,
   RefreshCw,
   Rocket,
   Send,
   Eye,
-  MousePointerClick,
   AlertTriangle,
-  CheckCircle2,
-  Clock,
   Search,
-  Filter,
-  BarChart3,
   Calendar,
-  Layers,
-  FileText,
   Loader2,
-  ExternalLink,
-  ShieldCheck,
   TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -53,7 +38,9 @@ export default function CampaignAnalyticsDashboard({
   // Recipient table filter & search
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [activeTab, setActiveTab] = useState<"recipients" | "events" | "logs">("recipients");
+  const [activeTab, setActiveTab] = useState<"recipients" | "events" | "logs">(
+    "recipients"
+  );
 
   const fetchAnalytics = async () => {
     try {
@@ -66,9 +53,9 @@ export default function CampaignAnalyticsDashboard({
       }
       const analyticsData = await res.json();
       setData(analyticsData);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setError(err.message || "Could not load campaign telemetry data");
+      setError("Could not load campaign telemetry data");
     } finally {
       setLoading(false);
     }
@@ -81,7 +68,11 @@ export default function CampaignAnalyticsDashboard({
   }, [campaignId]);
 
   const handleRelaunch = async () => {
-    if (!confirm("Relaunch this campaign as a new execution draft? Historical analytics for this send will remain 100% untouched.")) {
+    if (
+      !confirm(
+        "Relaunch this campaign as a new execution draft? Historical analytics for this send will remain 100% untouched."
+      )
+    ) {
       return;
     }
 
@@ -97,9 +88,9 @@ export default function CampaignAnalyticsDashboard({
 
       toast.success("New campaign execution created from original draft!");
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Relaunch failed");
+      toast.error("Relaunch failed");
     } finally {
       setIsRelaunching(false);
     }
@@ -109,7 +100,9 @@ export default function CampaignAnalyticsDashboard({
     return (
       <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center text-zinc-400 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
-        <span className="text-sm font-medium">Loading Campaign Telemetry & Analytics...</span>
+        <span className="text-sm font-medium">
+          Loading Campaign Telemetry & Analytics...
+        </span>
       </div>
     );
   }
@@ -120,10 +113,17 @@ export default function CampaignAnalyticsDashboard({
         <div className="p-4 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 mb-4">
           <AlertTriangle className="h-8 w-8" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Campaign Not Found</h2>
-        <p className="text-sm text-zinc-400 max-w-md mb-6">{error || "Could not retrieve metrics for this campaign."}</p>
+        <h2 className="text-2xl font-bold text-white mb-2">
+          Campaign Not Found
+        </h2>
+        <p className="text-sm text-zinc-400 max-w-md mb-6">
+          {error || "Could not retrieve metrics for this campaign."}
+        </p>
         <Link href="/dashboard">
-          <Button variant="outline" className="border-zinc-800 text-white gap-2">
+          <Button
+            variant="outline"
+            className="border-zinc-800 text-white gap-2"
+          >
             <ArrowLeft className="h-4 w-4" /> Back to Dashboard
           </Button>
         </Link>
@@ -131,7 +131,7 @@ export default function CampaignAnalyticsDashboard({
     );
   }
 
-  const { campaign, metrics, recipients, timeline, recentEvents } = data;
+  const { campaign, metrics, recipients, recentEvents } = data;
 
   // Filtered recipients
   const filteredRecipients = recipients.filter((r) => {
@@ -142,8 +142,8 @@ export default function CampaignAnalyticsDashboard({
       );
 
     if (statusFilter === "opened") return matchesSearch && r.openCount > 0;
-    if (statusFilter === "clicked") return matchesSearch && r.clickCount > 0;
-    if (statusFilter === "bounced") return matchesSearch && r.status === "bounced";
+    if (statusFilter === "bounced")
+      return matchesSearch && r.status === "bounced";
     if (statusFilter === "sent") return matchesSearch && r.status === "sent";
     return matchesSearch;
   });
@@ -154,11 +154,11 @@ export default function CampaignAnalyticsDashboard({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-850 pb-6">
         <div className="space-y-2">
           <Link
-            href="/dashboard"
+            href="/analytics"
             className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Campaign Dashboard
+            Back to Analytics Overview
           </Link>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -169,10 +169,10 @@ export default function CampaignAnalyticsDashboard({
                 campaign.status === "completed"
                   ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
                   : campaign.status === "sending"
-                  ? "bg-violet-500/10 border border-violet-500/30 text-violet-400 animate-pulse"
-                  : campaign.status === "failed"
-                  ? "bg-red-500/10 border border-red-500/30 text-red-400"
-                  : "bg-zinc-800 text-zinc-300"
+                    ? "bg-violet-500/10 border border-violet-500/30 text-violet-400 animate-pulse"
+                    : campaign.status === "failed"
+                      ? "bg-red-500/10 border border-red-500/30 text-red-400"
+                      : "bg-zinc-800 text-zinc-300"
               }`}
             >
               {campaign.status}
@@ -224,7 +224,7 @@ export default function CampaignAnalyticsDashboard({
       </div>
 
       {/* Primary KPI Metrics Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* KPI 1: Sent & Total */}
         <Card className="bg-zinc-900/50 border-zinc-800/80 backdrop-blur-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -236,7 +236,9 @@ export default function CampaignAnalyticsDashboard({
           <CardContent>
             <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               {metrics.sentCount}{" "}
-              <span className="text-xs text-zinc-500 font-normal">/ {metrics.totalCount}</span>
+              <span className="text-xs text-zinc-500 font-normal">
+                / {metrics.totalCount}
+              </span>
             </div>
             <div className="mt-2 text-[11px] text-zinc-400 flex items-center justify-between">
               <span>Delivery Rate</span>
@@ -264,7 +266,9 @@ export default function CampaignAnalyticsDashboard({
             </div>
             <div className="mt-2 text-[11px] text-zinc-400 flex items-center justify-between">
               <span>Bounce Rate</span>
-              <span className="font-mono text-rose-400 font-bold">{metrics.bounceRate}%</span>
+              <span className="font-mono text-rose-400 font-bold">
+                {metrics.bounceRate}%
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -280,31 +284,15 @@ export default function CampaignAnalyticsDashboard({
           <CardContent>
             <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               {metrics.uniqueOpens}{" "}
-              <span className="text-xs text-zinc-500 font-normal">({metrics.totalOpens} total)</span>
+              <span className="text-xs text-zinc-500 font-normal">
+                ({metrics.totalOpens} total)
+              </span>
             </div>
             <div className="mt-2 text-[11px] text-zinc-400 flex items-center justify-between">
               <span>Open Rate</span>
-              <span className="font-mono text-emerald-400 font-bold">{metrics.openRate}%</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* KPI 4: Clicks & Unique Clicks */}
-        <Card className="bg-zinc-900/50 border-zinc-800/80 backdrop-blur-md">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-              Clicks (Unique)
-            </CardTitle>
-            <MousePointerClick className="h-4 w-4 text-blue-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              {metrics.uniqueClicks}{" "}
-              <span className="text-xs text-zinc-500 font-normal">({metrics.totalClicks} total)</span>
-            </div>
-            <div className="mt-2 text-[11px] text-zinc-400 flex items-center justify-between">
-              <span>Click-Through Rate (CTR)</span>
-              <span className="font-mono text-blue-400 font-bold">{metrics.clickThroughRate}%</span>
+              <span className="font-mono text-emerald-400 font-bold">
+                {metrics.openRate}%
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -315,10 +303,10 @@ export default function CampaignAnalyticsDashboard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-white text-sm">
             <TrendingUp className="h-4 w-4 text-violet-400" />
-            <span>Campaign Engagement Funnel</span>
+            <span>Campaign Open Rate Funnel</span>
           </div>
           <span className="text-xs text-zinc-400 font-mono">
-            {metrics.uniqueOpens} opens • {metrics.uniqueClicks} clicks
+            {metrics.uniqueOpens} unique opens
           </span>
         </div>
 
@@ -331,11 +319,6 @@ export default function CampaignAnalyticsDashboard({
               title={`Open Rate: ${metrics.openRate}%`}
             />
             <div
-              className="bg-blue-500 h-full transition-all duration-500"
-              style={{ width: `${Math.min(100, metrics.clickThroughRate)}%` }}
-              title={`Click Rate: ${metrics.clickThroughRate}%`}
-            />
-            <div
               className="bg-rose-500 h-full transition-all duration-500"
               style={{ width: `${Math.min(100, metrics.bounceRate)}%` }}
               title={`Bounce Rate: ${metrics.bounceRate}%`}
@@ -345,15 +328,17 @@ export default function CampaignAnalyticsDashboard({
           <div className="flex items-center justify-between text-xs text-zinc-400 pt-1">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block" />
-              <span>Unique Open Rate: <strong className="text-white">{metrics.openRate}%</strong></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-blue-500 inline-block" />
-              <span>Click-Through Rate: <strong className="text-white">{metrics.clickThroughRate}%</strong></span>
+              <span>
+                Unique Open Rate:{" "}
+                <strong className="text-white">{metrics.openRate}%</strong>
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-rose-500 inline-block" />
-              <span>Bounce Rate: <strong className="text-white">{metrics.bounceRate}%</strong></span>
+              <span>
+                Bounce Rate:{" "}
+                <strong className="text-white">{metrics.bounceRate}%</strong>
+              </span>
             </div>
           </div>
         </div>
@@ -386,7 +371,7 @@ export default function CampaignAnalyticsDashboard({
                     : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                 }`}
               >
-                Live Event Stream ({recentEvents.length})
+                Live Open Stream ({recentEvents.length})
               </button>
 
               <button
@@ -423,7 +408,6 @@ export default function CampaignAnalyticsDashboard({
                 >
                   <option value="all">All Statuses</option>
                   <option value="opened">Opened Only</option>
-                  <option value="clicked">Clicked Only</option>
                   <option value="sent">Sent</option>
                   <option value="bounced">Bounced / Failed</option>
                 </select>
@@ -442,20 +426,25 @@ export default function CampaignAnalyticsDashboard({
                     <th className="px-4 py-3">Recipient Email</th>
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Opens</th>
-                    <th className="px-4 py-3">Clicks</th>
                     <th className="px-4 py-3">Last Engagement</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-850 bg-zinc-900/20">
                   {filteredRecipients.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-zinc-500 italic">
+                      <td
+                        colSpan={4}
+                        className="px-4 py-8 text-center text-zinc-500 italic"
+                      >
                         No recipient activity records match filter criteria.
                       </td>
                     </tr>
                   ) : (
                     filteredRecipients.map((r, idx) => (
-                      <tr key={idx} className="hover:bg-zinc-900/60 transition-colors">
+                      <tr
+                        key={idx}
+                        className="hover:bg-zinc-900/60 transition-colors"
+                      >
                         <td className="px-4 py-3 font-mono font-medium text-white">
                           {r.email}
                           {Object.keys(r.variables).length > 0 && (
@@ -471,15 +460,19 @@ export default function CampaignAnalyticsDashboard({
                             className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                               r.status === "sent"
                                 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : r.status === "bounced" || r.status === "failed"
-                                ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                                : "bg-zinc-800 text-zinc-400"
+                                : r.status === "bounced" ||
+                                    r.status === "failed"
+                                  ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                                  : "bg-zinc-800 text-zinc-400"
                             }`}
                           >
                             {r.status}
                           </span>
                           {r.errorMessage && (
-                            <div className="text-[10px] text-rose-400 mt-1 truncate max-w-xs" title={r.errorMessage}>
+                            <div
+                              className="text-[10px] text-rose-400 mt-1 truncate max-w-xs"
+                              title={r.errorMessage}
+                            >
                               {r.errorMessage}
                             </div>
                           )}
@@ -493,20 +486,13 @@ export default function CampaignAnalyticsDashboard({
                             <span className="text-zinc-600">0</span>
                           )}
                         </td>
-                        <td className="px-4 py-3">
-                          {r.clickCount > 0 ? (
-                            <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold font-mono">
-                              {r.clickCount} click(s)
-                            </span>
-                          ) : (
-                            <span className="text-zinc-600">0</span>
-                          )}
-                        </td>
                         <td className="px-4 py-3 text-zinc-400 font-mono text-[11px]">
                           {r.lastActivity ? (
                             new Date(r.lastActivity).toLocaleString()
                           ) : (
-                            <span className="text-zinc-600 italic">No activity yet</span>
+                            <span className="text-zinc-600 italic">
+                              No activity yet
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -517,12 +503,12 @@ export default function CampaignAnalyticsDashboard({
             </div>
           )}
 
-          {/* TAB 2: Live Event Stream */}
+          {/* TAB 2: Live Open Event Stream */}
           {activeTab === "events" && (
             <div className="space-y-3">
               {recentEvents.length === 0 ? (
                 <div className="p-8 text-center text-zinc-500 italic border border-zinc-850 rounded-lg">
-                  No opens, clicks, or bounce events recorded yet.
+                  No open or bounce events recorded yet.
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -536,30 +522,26 @@ export default function CampaignAnalyticsDashboard({
                           className={`p-1.5 rounded-md ${
                             ev.type === "open"
                               ? "bg-emerald-500/10 text-emerald-400"
-                              : ev.type === "click"
-                              ? "bg-blue-500/10 text-blue-400"
                               : "bg-rose-500/10 text-rose-400"
                           }`}
                         >
                           {ev.type === "open" && <Eye className="h-4 w-4" />}
-                          {ev.type === "click" && <MousePointerClick className="h-4 w-4" />}
-                          {ev.type === "bounce" && <AlertTriangle className="h-4 w-4" />}
+                          {ev.type === "bounce" && (
+                            <AlertTriangle className="h-4 w-4" />
+                          )}
                         </span>
                         <div>
                           <div className="text-white font-bold">
                             [{ev.type.toUpperCase()}] {ev.recipientEmail}
                           </div>
-                          {ev.targetUrl && (
-                            <div className="text-[11px] text-blue-400 truncate max-w-md">
-                              Target: {ev.targetUrl}
-                            </div>
-                          )}
                         </div>
                       </div>
 
                       <div className="text-right text-zinc-500 text-[11px]">
                         <div>{new Date(ev.createdAt).toLocaleString()}</div>
-                        {ev.ip && <div className="text-zinc-600">IP: {ev.ip}</div>}
+                        {ev.ip && (
+                          <div className="text-zinc-600">IP: {ev.ip}</div>
+                        )}
                       </div>
                     </div>
                   ))}
