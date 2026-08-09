@@ -35,52 +35,49 @@ model Campaign {
   recipients       String
   status           String              @default("draft")
   sentCount        Int                 @default(0)
-  bounceCount      Int                 @default(0)
   totalCount       Int                 @default(0)
   logs             String              @default("")
   userId           String
-  relaunchedFromId String?
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
   user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  relaunchedFrom   Campaign?           @relation("Relaunches", fields: [relaunchedFromId], references: [id], onDelete: SetNull)
-  relaunches       Campaign[]          @relation("Relaunches")
-  recipientsList   CampaignRecipient[]
-  events           CampaignEvent[]
+  recipientRecords CampaignRecipient[]
+  openEvents       CampaignOpenEvent[]
 
   @@map("campaigns")
 }
 
 model CampaignRecipient {
-  id           String    @id @default(uuid())
-  campaignId   String
-  email        String
-  variables    String?
-  status       String    @default("pending") // pending | sent | bounced | failed
-  sentAt       DateTime?
-  errorMessage String?
-  campaign     Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  id         String              @id @default(uuid())
+  campaignId String
+  email      String
+  status     String              @default("sent")
+  variables  Json?
+  opened     Boolean             @default(false)
+  openedAt   DateTime?
+  openCount  Int                 @default(0)
+  createdAt  DateTime            @default(now())
+  campaign   Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  openEvents CampaignOpenEvent[]
 
+  @@unique([campaignId, email])
   @@index([campaignId])
   @@index([campaignId, email])
   @@map("campaign_recipients")
 }
 
-model CampaignEvent {
-  id            String   @id @default(uuid())
-  campaignId    String
-  recipientEmail String
-  type          String   // open | click | bounce
-  targetUrl     String?
-  ip            String?
-  userAgent     String?
-  createdAt     DateTime @default(now())
-  campaign      Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+model CampaignOpenEvent {
+  id          String            @id @default(uuid())
+  campaignId  String
+  recipientId String
+  openedAt    DateTime          @default(now())
+  ipAddress   String?
+  userAgent   String?
+  campaign    Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  recipient   CampaignRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
 
   @@index([campaignId])
-  @@index([campaignId, type])
-  @@index([campaignId, recipientEmail])
-  @@index([campaignId, type, recipientEmail])
-  @@index([createdAt])
-  @@map("campaign_events")
+  @@index([campaignId, recipientId])
+  @@index([openedAt])
+  @@map("campaign_open_events")
 }

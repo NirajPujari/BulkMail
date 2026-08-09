@@ -204,7 +204,9 @@ export function Header() {
                   href="/dashboard"
                   className={cn(
                     "flex items-center gap-1.5 transition-colors hover:text-white",
-                    pathname === "/dashboard" ? "text-violet-400 font-semibold" : ""
+                    pathname === "/dashboard"
+                      ? "text-violet-400 font-semibold"
+                      : "",
                   )}
                 >
                   <LayoutDashboard className="h-4 w-4" />
@@ -215,9 +217,10 @@ export function Header() {
                   href="/analytics"
                   className={cn(
                     "flex items-center gap-1.5 transition-colors hover:text-white",
-                    pathname.startsWith("/analytics") || pathname.includes("/campaigns/")
+                    pathname.startsWith("/analytics") ||
+                      pathname.includes("/campaigns/")
                       ? "text-violet-400 font-semibold"
-                      : ""
+                      : "",
                   )}
                 >
                   <BarChart3 className="h-4 w-4" />
@@ -228,7 +231,9 @@ export function Header() {
                   href="/settings"
                   className={cn(
                     "flex items-center gap-1.5 transition-colors hover:text-white",
-                    pathname === "/settings" ? "text-violet-400 font-semibold" : ""
+                    pathname === "/settings"
+                      ? "text-violet-400 font-semibold"
+                      : "",
                   )}
                 >
                   <Settings className="h-4 w-4" />

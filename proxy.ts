@@ -11,6 +11,7 @@ const routePermissions: Record<string, Role> = {
   "/api/oauth/google/callback": "everyone",
   "/api/oauth/google/complete-setup": "everyone",
   "/api/oauth/google/setup-info": "everyone",
+  "/api/track/open": "everyone",
 
   "/api/logout": "user",
   "/api/me": "user",

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -6,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { History, Loader2, Mail, Trash2, Check, BarChart3 } from "lucide-react";
+import { History, Loader2, Mail, Trash2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CampaignHistoryProps } from "@/types/campaign";
 
@@ -20,19 +19,16 @@ export function CampaignHistory({
   return (
     <Card className="h-full bg-zinc-900/30 backdrop-blur-md border-zinc-800/80 shadow-2xl hover:border-zinc-800 transition-all duration-300 flex flex-col">
       <CardHeader className="pb-3 border-b border-zinc-850">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-zinc-800 text-zinc-400 rounded-lg">
-              <History className="h-5 w-5" />
-            </div>
-            <CardTitle className="text-lg font-bold text-white">
-              Campaign History
-            </CardTitle>
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-zinc-800 text-zinc-400 rounded-lg">
+            <History className="h-5 w-5" />
           </div>
+          <CardTitle className="text-lg font-bold text-white">
+            Campaign History
+          </CardTitle>
         </div>
-        <CardDescription className="text-zinc-500 text-xs">
-          Recent email dispatches. Select a campaign to edit or view full
-          analytics telemetry.
+        <CardDescription className="text-zinc-500">
+          Recently executed campaigns. Click to load details.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6 flex-1 flex flex-col justify-start">
@@ -44,7 +40,7 @@ export function CampaignHistory({
           <div className="flex flex-col items-center justify-center text-center p-8 h-48 text-zinc-500 border border-dashed rounded-lg border-zinc-800/80 flex-1">
             <Mail className="h-8 w-8 mb-2.5 stroke-1 text-zinc-600" />
             <p className="text-sm font-medium">No campaigns sent yet.</p>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-sm text-zinc-500 mt-1">
               Draft your first campaign on the left.
             </p>
           </div>
@@ -72,7 +68,7 @@ export function CampaignHistory({
                   >
                     {campaign.subject}
                   </h4>
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     {campaign.status === "draft" ? (
                       <span className="flex items-center gap-1 text-[10px] font-bold bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700">
                         Draft
@@ -80,19 +76,9 @@ export function CampaignHistory({
                     ) : (
                       <span className="flex items-center gap-1 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
                         <Check className="h-2.5 w-2.5" />
-                        {campaign.status}
+                        Success
                       </span>
                     )}
-
-                    <Link
-                      href={`/analytics/campaign/${campaign.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-1 rounded-md bg-violet-600/10 border border-violet-500/20 text-violet-400 hover:bg-violet-600/20 transition-colors"
-                      title="View Telemetry Analytics"
-                    >
-                      <BarChart3 className="h-3.5 w-3.5" />
-                    </Link>
-
                     <button
                       type="button"
                       onClick={(e) => {
@@ -106,7 +92,7 @@ export function CampaignHistory({
                     </button>
                   </div>
                 </div>
-                <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+                <p className="text-sm text-zinc-400 line-clamp-2 leading-relaxed">
                   {campaign.body}
                 </p>
                 <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-2 border-t border-zinc-800/80">

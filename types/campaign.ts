@@ -7,12 +7,9 @@ export interface Campaign {
   recipients: string;
   status: string;
   sentCount: number;
-  bounceCount?: number;
   totalCount: number;
   logs?: string;
-  relaunchedFromId?: string | null;
   createdAt: string;
-  openRate?: number;
 }
 
 export interface RecipientVariableItem {
@@ -39,11 +36,11 @@ export interface RecipientPreviewModalProps {
 
 export interface CampaignComposerProps {
   subject: string;
-  setSubject: Dispatch<SetStateAction<string>>;
+  setSubject: Dispatch<SetStateAction<string>>
   body: string;
-  setBody: Dispatch<SetStateAction<string>>;
+  setBody: Dispatch<SetStateAction<string>>
   recipientInput: string;
-  setRecipientInput: Dispatch<SetStateAction<string>>;
+  setRecipientInput: Dispatch<SetStateAction<string>>
   variables: string[];
   setVariables: Dispatch<SetStateAction<string[]>>;
   recipientItems: RecipientVariableItem[];
@@ -83,52 +80,4 @@ export interface PersonalizationValidationResult {
   undefinedTags: string[];
   missingValueRecipients: Array<{ email: string; missingTags: string[] }>;
   isValid: boolean;
-}
-
-export interface CampaignRecipientActivity {
-  email: string;
-  variables: Record<string, string>;
-  status: string;
-  sentAt: string | null;
-  errorMessage: string | null;
-  openCount: number;
-  lastActivity: string | null;
-}
-
-export interface CampaignEventData {
-  id: string;
-  campaignId: string;
-  recipientEmail: string;
-  type: "open" | "bounce";
-  ip?: string | null;
-  userAgent?: string | null;
-  createdAt: string;
-}
-
-export interface CampaignAnalyticsMetrics {
-  totalCount: number;
-  sentCount: number;
-  bounceCount: number;
-  totalOpens: number;
-  uniqueOpens: number;
-  openRate: number;
-  bounceRate: number;
-}
-
-export interface CampaignAnalyticsData {
-  campaign: {
-    id: string;
-    subject: string;
-    body: string;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-    logs?: string;
-    relaunchedFrom?: { id: string; subject: string; createdAt: string } | null;
-    relaunches?: Array<{ id: string; subject: string; createdAt: string; status: string }>;
-  };
-  metrics: CampaignAnalyticsMetrics;
-  recipients: CampaignRecipientActivity[];
-  timeline: Array<{ time: string; opens: number }>;
-  recentEvents: CampaignEventData[];
 }
