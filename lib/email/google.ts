@@ -78,11 +78,14 @@ export async function getGoogleAccessToken(userId: string): Promise<{ accessToke
  */
 function buildRawMimeMessage(to: string, from: string, subject: string, body: string): string {
   const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
+  const isHtml = /<[a-z][\s\S]*>/i.test(body);
+  const contentType = isHtml ? "text/html; charset=utf-8" : "text/plain; charset=utf-8";
+
   const messageParts = [
     `From: ${from}`,
     `To: ${to}`,
     `Subject: ${utf8Subject}`,
-    `Content-Type: text/plain; charset=utf-8`,
+    `Content-Type: ${contentType}`,
     `MIME-Version: 1.0`,
     ``,
     body,

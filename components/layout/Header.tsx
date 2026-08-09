@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Shield,
   Settings,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -182,20 +183,59 @@ export function Header() {
              Only DootX + user controls
           ========================================================= */
           <>
-            {/* DootX Home Button */}
-            <Link
-              href="/"
-              className="group flex items-center gap-2.5 font-bold text-white tracking-tight text-lg"
-              title="Back to DootX home"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white transition-colors group-hover:bg-violet-500">
-                <Mail className="h-4 w-4" />
-              </div>
+            {/* DootX Home Button + Protected Navigation */}
+            <div className="flex items-center gap-8">
+              <Link
+                href="/"
+                className="group flex items-center gap-2.5 font-bold text-white tracking-tight text-lg"
+                title="Back to DootX home"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white transition-colors group-hover:bg-violet-500">
+                  <Mail className="h-4 w-4" />
+                </div>
 
-              <span className="group-hover:text-violet-300 transition-colors">
-                DootX
-              </span>
-            </Link>
+                <span className="group-hover:text-violet-300 transition-colors">
+                  DootX
+                </span>
+              </Link>
+
+              <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-zinc-400">
+                <Link
+                  href="/dashboard"
+                  className={cn(
+                    "flex items-center gap-1.5 transition-colors hover:text-white",
+                    pathname === "/dashboard" ? "text-violet-400 font-semibold" : ""
+                  )}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </Link>
+
+                <Link
+                  href="/analytics"
+                  className={cn(
+                    "flex items-center gap-1.5 transition-colors hover:text-white",
+                    pathname.startsWith("/analytics") || pathname.includes("/campaigns/")
+                      ? "text-violet-400 font-semibold"
+                      : ""
+                  )}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  Analytics
+                </Link>
+
+                <Link
+                  href="/settings"
+                  className={cn(
+                    "flex items-center gap-1.5 transition-colors hover:text-white",
+                    pathname === "/settings" ? "text-violet-400 font-semibold" : ""
+                  )}
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
+              </nav>
+            </div>
 
             {/* Protected Page Right Actions */}
             <div className="flex items-center space-x-4">

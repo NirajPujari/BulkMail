@@ -54,7 +54,6 @@ JWT_SECRET="your_secure_random_jwt_and_encryption_secret"
 GOOGLE_CLIENT_ID="your_google_oauth_client_id"
 GOOGLE_CLIENT_SECRET="your_google_oauth_client_secret"
 APP_URL="http://localhost:3000"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 ### 3. Installation & Database Sync
@@ -99,23 +98,12 @@ Upgrade the `CampaignComposer` recipient importer:
 - [ ] Automatic email validation and duplicate removal.
 - [ ] Auto-populate recipient list with fallback manual text input.
 
-#### 2. Saved Contact Lists & Groups
-Extend database schema with `ContactGroup` and `Contact` models:
-- [ ] Create `ContactGroup` and `Contact` Prisma data models.
-- [ ] Build CRUD API endpoints for managing contact groups.
-- [ ] Build Contact Management UI (import contacts, edit lists, delete contact lists).
-- [ ] Allow selecting saved contact lists directly within the Campaign Composer.
-
-#### 3. Rich HTML Email Editor
+#### 2. Rich HTML Email Editor
 Replace plain body text area with an advanced editor:
 - [ ] WYSIWYG rich text editor integration.
 - [ ] Rich formatting toolbar (bold, italics, headings, lists, links).
 - [ ] Real-time HTML visual preview tab.
 - [ ] Automatic plain text fallback generation.
-
-#### 4. Extended Merge Tags Engine
-- [ ] Support standard `{{name}}`, `{{email}}`, and dynamic custom tags across all email templates.
-- [ ] Complete pre-send validation and preview rendering.
 
 ---
 
@@ -134,13 +122,7 @@ Replace plain body text area with an advanced editor:
 - [ ] **Cancel Campaign**: Instantly cancel active dispatches without data loss.
 - [ ] Duplicate sending prevention and real-time status sync.
 
-#### 3. Email Analytics & Telemetry
-- [ ] Email open tracking via tracking pixel.
-- [ ] Link click tracking and URL redirect wrappers.
-- [ ] Engagement metrics (Open rate, Click-through rate, Bounce rate).
-- [ ] Analytics dashboard & campaign performance summary charts.
-
-#### 4. Dynamic Notification System
+#### 3. Dynamic Notification System
 Replace static header notification bell with live alerts:
 - [ ] `Notification` database model and API endpoints.
 - [ ] Header notification dropdown menu with read/unread state.

@@ -5,6 +5,10 @@ import { sendProviderEmail } from "@/lib/email/dispatcher";
 import { checkQuotaAvailable, incrementUserQuota, getUserQuotaInfo } from "@/lib/email/quota";
 import { renderTemplate } from "@/lib/email/template";
 import { RecipientVariableItem } from "@/types/campaign";
+import {
+  convertTextToHtml,
+  injectTrackingPixel,
+} from "@/lib/email/tracking";
 
 // Helper to get userId from Authorization header
 function getUserIdFromRequest(req: NextRequest): string | null {
@@ -115,6 +119,7 @@ export async function POST(req: NextRequest) {
           recipients: recipientsDbPayload,
           totalCount: targetRecipients.length,
           sentCount: 0,
+          bounceCount: 0,
           logs: `[System] Resuming draft campaign: "${subject}"...\n[System] Found ${targetRecipients.length} recipient(s).`,
         },
       });
@@ -126,12 +131,31 @@ export async function POST(req: NextRequest) {
           recipients: recipientsDbPayload,
           status: "sending",
           sentCount: 0,
+          bounceCount: 0,
           totalCount: targetRecipients.length,
           logs: `[System] Initializing personalized campaign: "${subject}"...\n[System] Found ${targetRecipients.length} recipient(s).`,
           userId,
         },
       });
       campaignId = campaign.id;
+    }
+
+    // Populate relational CampaignRecipient records
+    try {
+      await prisma.campaignRecipient.deleteMany({
+        where: { campaignId },
+      });
+
+      await prisma.campaignRecipient.createMany({
+        data: targetRecipients.map((r) => ({
+          campaignId,
+          email: r.email.toLowerCase().trim(),
+          variables: JSON.stringify(r.variables || {}),
+          status: "pending",
+        })),
+      });
+    } catch (e) {
+      console.error("Failed to populate relational CampaignRecipient records:", e);
     }
 
     // Trigger background send process via Gmail API
@@ -178,12 +202,12 @@ async function sendCampaignBackground(
     }
   };
 
-  await appendLog(`[System] Initialized Gmail API personalized dispatch engine.`);
+  await appendLog(`[System] Initialized Gmail API personalized dispatch & telemetry engine.`);
   await appendLog(`[System] Authenticating connected Gmail sender identity: <${senderEmail}>... Success.`);
 
   for (let i = 0; i < recipients.length; i++) {
     const item = recipients[i];
-    const email = item.email;
+    const email = item.email.toLowerCase().trim();
 
     // Check remaining quota before attempting dispatch
     const currentQuota = await getUserQuotaInfo(userId);
@@ -196,7 +220,11 @@ async function sendCampaignBackground(
 
     // Render personalized subject and body for this recipient
     const personalizedSubject = renderTemplate(subject, item.variables);
-    const personalizedBody = renderTemplate(body, item.variables);
+    const personalizedBodyText = renderTemplate(body, item.variables);
+
+    // Convert plain text to HTML and inject open tracking pixel
+    const htmlBody = convertTextToHtml(personalizedBodyText);
+    const finalHtmlBody = injectTrackingPixel(htmlBody, campaignId, email);
 
     await appendLog(`[Sending] Personalizing & dispatching via Gmail API to ${email}...`);
 
@@ -205,26 +233,47 @@ async function sendCampaignBackground(
         userId,
         to: email,
         subject: personalizedSubject,
-        body: personalizedBody,
+        body: finalHtmlBody,
       });
 
       sent++;
       await incrementUserQuota(userId, 1);
       await appendLog(`[Success] Delivered personalized email to ${email} via Gmail API (Message ID: ${result.id})`);
-    } catch (err) {
+
+      // Update recipient relational status to sent
+      prisma.campaignRecipient.updateMany({
+        where: { campaignId, email },
+        data: { status: "sent", sentAt: new Date() },
+      }).catch((e) => console.error("Error updating recipient sent status:", e));
+    } catch (err: any) {
       failed++;
+      const errorMsg = err?.message || String(err);
       console.error(`Error dispatching to ${email}:`, err);
-      await appendLog(`[Failed] Error dispatching to ${email}: ${err}`);
+      await appendLog(`[Failed] Error dispatching to ${email}: ${errorMsg}`);
+
+      // Record bounce / failure event
+      prisma.campaignRecipient.updateMany({
+        where: { campaignId, email },
+        data: { status: "bounced", errorMessage: errorMsg },
+      }).catch((e) => console.error("Error updating recipient bounce status:", e));
+
+      prisma.campaignEvent.create({
+        data: {
+          campaignId,
+          recipientEmail: email,
+          type: "bounce",
+        },
+      }).catch((e) => console.error("Error recording bounce event:", e));
     }
 
-    // Update sent count periodically
+    // Update sent & bounce count periodically
     try {
       await prisma.campaign.update({
         where: { id: campaignId },
-        data: { sentCount: sent },
+        data: { sentCount: sent, bounceCount: failed },
       });
     } catch (e) {
-      console.error("Failed to update sent count:", e);
+      console.error("Failed to update counts:", e);
     }
 
     // 1-second delay between emails to respect Gmail API quota
@@ -233,12 +282,12 @@ async function sendCampaignBackground(
 
   const finalStatus = failed === recipients.length ? "failed" : "completed";
   await appendLog(`[System] Gmail API personalized background dispatcher finished.`);
-  await appendLog(`[Summary] Sent: ${sent}, Failed: ${failed}, Total: ${recipients.length}`);
+  await appendLog(`[Summary] Sent: ${sent}, Bounced/Failed: ${failed}, Total: ${recipients.length}`);
 
   try {
     await prisma.campaign.update({
       where: { id: campaignId },
-      data: { status: finalStatus },
+      data: { status: finalStatus, sentCount: sent, bounceCount: failed },
     });
   } catch (e) {
     console.error("Failed to set final status:", e);
