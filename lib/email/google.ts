@@ -75,17 +75,25 @@ export async function getGoogleAccessToken(userId: string): Promise<{ accessToke
 
 /**
  * Builds RFC2822 formatted raw MIME message base64url encoded.
+ * Uses text/html MIME type so tracking pixels and HTML layout elements render properly.
  */
 function buildRawMimeMessage(to: string, from: string, subject: string, body: string): string {
   const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
+
+  // Format plain text body as HTML container with pre-wrap if not full HTML document
+  const htmlContent =
+    body.includes("<html") || body.includes("<body") || body.includes("<div") || body.includes("<p")
+      ? body
+      : `<div style="font-family: sans-serif; font-size: 14px; line-height: 1.6; color: #111827; white-space: pre-wrap;">${body}</div>`;
+
   const messageParts = [
     `From: ${from}`,
     `To: ${to}`,
     `Subject: ${utf8Subject}`,
-    `Content-Type: text/plain; charset=utf-8`,
+    `Content-Type: text/html; charset=utf-8`,
     `MIME-Version: 1.0`,
     ``,
-    body,
+    htmlContent,
   ];
 
   const mimeString = messageParts.join("\r\n");

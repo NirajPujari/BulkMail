@@ -10,10 +10,10 @@ const TRANSPARENT_PNG = Buffer.from(
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const campaignId = url.searchParams.get("c");
+    const executionId = url.searchParams.get("c");
     const rawEmail = url.searchParams.get("r");
 
-    if (campaignId && rawEmail) {
+    if (executionId && rawEmail) {
       const email = rawEmail.toLowerCase().trim();
       const ipAddress =
         req.headers.get("x-forwarded-for")?.split(",")[0] ||
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
           // Find recipient record for this exact campaign execution and email
           const recipientRecord = await prisma.campaignRecipient.findFirst({
             where: {
-              campaignId,
+              executionId,
               email,
             },
           });
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
             // Record open event log
             await prisma.campaignOpenEvent.create({
               data: {
-                campaignId,
+                executionId,
                 recipientId: recipientRecord.id,
                 openedAt: now,
                 ipAddress,

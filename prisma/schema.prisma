@@ -29,55 +29,76 @@ model User {
 }
 
 model Campaign {
+  id         String              @id @default(uuid())
+  subject    String
+  body       String
+  recipients String
+  status     String              @default("draft")
+  sentCount  Int                 @default(0)
+  totalCount Int                 @default(0)
+  logs       String              @default("")
+  userId     String
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  executions CampaignExecution[]
+
+  @@map("campaigns")
+}
+
+model CampaignExecution {
   id               String              @id @default(uuid())
+  campaignId       String?
   subject          String
   body             String
   recipients       String
-  status           String              @default("draft")
+  status           String              @default("sending")
   sentCount        Int                 @default(0)
   totalCount       Int                 @default(0)
   logs             String              @default("")
   userId           String
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
-  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign         Campaign?           @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   recipientRecords CampaignRecipient[]
   openEvents       CampaignOpenEvent[]
 
-  @@map("campaigns")
+  @@index([campaignId])
+  @@index([userId])
+  @@map("campaign_executions")
 }
 
 model CampaignRecipient {
-  id         String              @id @default(uuid())
-  campaignId String
-  email      String
-  status     String              @default("sent")
-  variables  Json?
-  opened     Boolean             @default(false)
-  openedAt   DateTime?
-  openCount  Int                 @default(0)
-  createdAt  DateTime            @default(now())
-  campaign   Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  openEvents CampaignOpenEvent[]
+  id          String            @id @default(uuid())
+  executionId String
+  email       String
+  status      String            @default("sent")
+  variables   Json?
+  opened      Boolean           @default(false)
+  openedAt    DateTime?
+  openCount   Int               @default(0)
+  createdAt   DateTime          @default(now())
+  execution   CampaignExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  openEvents  CampaignOpenEvent[]
 
-  @@unique([campaignId, email])
-  @@index([campaignId])
-  @@index([campaignId, email])
+  @@unique([executionId, email])
+  @@index([executionId])
+  @@index([executionId, email])
   @@map("campaign_recipients")
 }
 
 model CampaignOpenEvent {
   id          String            @id @default(uuid())
-  campaignId  String
+  executionId String
   recipientId String
   openedAt    DateTime          @default(now())
   ipAddress   String?
   userAgent   String?
-  campaign    Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  execution   CampaignExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
   recipient   CampaignRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
 
-  @@index([campaignId])
-  @@index([campaignId, recipientId])
+  @@index([executionId])
+  @@index([executionId, recipientId])
   @@index([openedAt])
   @@map("campaign_open_events")
 }

@@ -20,23 +20,26 @@ export async function GET(req: NextRequest) {
     }
 
     const url = new URL(req.url);
-    const campaignId = url.searchParams.get("id");
+    const executionId = url.searchParams.get("id");
 
     // GET single campaign execution detail
-    if (campaignId) {
-      const campaign = await prisma.campaign.findFirst({
+    if (executionId) {
+      const execution = await prisma.campaignExecution.findFirst({
         where: {
-          id: campaignId,
+          id: executionId,
           userId, // Strict data isolation by userId
         },
         include: {
+          campaign: {
+            select: { subject: true },
+          },
           recipientRecords: {
             orderBy: { createdAt: "asc" },
           },
         },
       });
 
-      if (!campaign) {
+      if (!execution) {
         return NextResponse.json(
           { message: "Campaign execution not found or forbidden" },
           { status: 404 }
@@ -52,8 +55,8 @@ export async function GET(req: NextRequest) {
         status: string;
       }> = [];
 
-      if (campaign.recipientRecords.length > 0) {
-        recipientItems = campaign.recipientRecords.map((r) => ({
+      if (execution.recipientRecords.length > 0) {
+        recipientItems = execution.recipientRecords.map((r) => ({
           email: r.email,
           opened: r.opened,
           openedAt: r.openedAt,
@@ -63,7 +66,7 @@ export async function GET(req: NextRequest) {
       } else {
         // Fallback parsing from stored recipients JSON string
         try {
-          const parsed = JSON.parse(campaign.recipients);
+          const parsed = JSON.parse(execution.recipients);
           if (Array.isArray(parsed)) {
             recipientItems = parsed.map((item: any) => ({
               email: typeof item === "string" ? item : item.email,
@@ -74,7 +77,7 @@ export async function GET(req: NextRequest) {
             }));
           }
         } catch {
-          const emails = campaign.recipients
+          const emails = execution.recipients
             .split(/[\n,;]+/)
             .map((e) => e.trim())
             .filter((e) => e.length > 0 && e.includes("@"));
@@ -90,33 +93,37 @@ export async function GET(req: NextRequest) {
       }
 
       const openedCount = recipientItems.filter((r) => r.opened).length;
-      const notOpenedCount = Math.max(0, campaign.sentCount - openedCount);
+      const notOpenedCount = Math.max(0, execution.sentCount - openedCount);
       const openRate =
-        campaign.sentCount > 0
-          ? Math.round((openedCount / campaign.sentCount) * 1000) / 10
+        execution.sentCount > 0
+          ? Math.round((openedCount / execution.sentCount) * 1000) / 10
           : 0;
 
       return NextResponse.json({
-        id: campaign.id,
-        subject: campaign.subject,
-        body: campaign.body,
-        status: campaign.status,
-        launchedAt: campaign.createdAt,
-        totalCount: campaign.totalCount,
-        sentCount: campaign.sentCount,
+        id: execution.id,
+        campaignId: execution.campaignId,
+        subject: execution.subject || execution.campaign?.subject || "Untitled Campaign",
+        body: execution.body,
+        status: execution.status,
+        launchedAt: execution.createdAt,
+        totalCount: execution.totalCount,
+        sentCount: execution.sentCount,
         openedCount,
         notOpenedCount,
         openRate,
-        logs: campaign.logs,
+        logs: execution.logs,
         recipients: recipientItems,
       });
     }
 
-    // GET list of all campaign executions for this user
-    const campaigns = await prisma.campaign.findMany({
+    // GET list of all campaign executions for this user (Bug 2 fix: Queries CampaignExecution table)
+    const executions = await prisma.campaignExecution.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
+        campaign: {
+          select: { subject: true },
+        },
         recipientRecords: {
           select: {
             opened: true,
@@ -125,22 +132,23 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const executionList = campaigns.map((c) => {
-      const openedCount = c.recipientRecords.filter((r) => r.opened).length;
+    const executionList = executions.map((exec) => {
+      const openedCount = exec.recipientRecords.filter((r) => r.opened).length;
       const openRate =
-        c.sentCount > 0
-          ? Math.round((openedCount / c.sentCount) * 1000) / 10
+        exec.sentCount > 0
+          ? Math.round((openedCount / exec.sentCount) * 1000) / 10
           : 0;
 
       return {
-        id: c.id,
-        subject: c.subject,
-        status: c.status,
-        sentCount: c.sentCount,
-        totalCount: c.totalCount,
+        id: exec.id,
+        campaignId: exec.campaignId,
+        subject: exec.subject || exec.campaign?.subject || "Untitled Campaign",
+        status: exec.status,
+        sentCount: exec.sentCount,
+        totalCount: exec.totalCount,
         openedCount,
         openRate,
-        launchedAt: c.createdAt,
+        launchedAt: exec.createdAt,
       };
     });
 
