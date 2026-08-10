@@ -4,63 +4,80 @@ import Link from "next/link";
 import { useAuth } from "@/context/Auth";
 import { Button } from "@/components/ui/button";
 import {
-  Mail,
-  ShieldCheck,
   ArrowRight,
   Sparkles,
-  Cpu,
-  Users,
-  Target,
-  Zap,
-  Rocket,
-  Briefcase,
-  Megaphone,
-  UserCheck,
   Lock,
-  FileText,
-  MessageSquare,
   Info,
-  ExternalLink,
+  MessageSquare,
+  FileText,
 } from "lucide-react";
+
+import { Hero3DVisual } from "@/components/landing/Hero3DVisual";
+import { ProblemSection } from "@/components/landing/ProblemSection";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { ProductShowcase } from "@/components/landing/ProductShowcase";
+import { UseCases } from "@/components/landing/UseCases";
+import { WhyColdEmail } from "@/components/landing/WhyColdEmail";
+import { GoogleCompliance } from "@/components/landing/GoogleCompliance";
+import { FinalCTA } from "@/components/landing/FinalCTA";
 
 export default function Home() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-violet-500 selection:text-white flex flex-col justify-between">
-      <main className="flex-1">
-        <section className="relative pt-10 pb-20 px-6 max-w-7xl mx-auto text-center">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-violet-600/15 rounded-full blur-[140px] pointer-events-none" />
+    <main className="space-y-20">
+      <section className="relative isolate overflow-hidden px-6 pt-32 pb-28 sm:pt-40 sm:pb-36">
+        {/* Ambient background */}
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute left-1/2 top-20 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-[120px]" />
+          <div className="absolute left-[15%] top-[35%] h-64 w-64 rounded-full bg-indigo-500/5 blur-[100px]" />
+          <div className="absolute right-[10%] top-[25%] h-72 w-72 rounded-full bg-purple-500/5 blur-[100px]" />
 
-          {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-sm text-violet-400 font-medium mb-8">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Google Gmail API Engine v2.0</span>
+          {/* Subtle grid */}
+          <div
+            className="absolute inset-0 opacity-[0.035]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
+              backgroundSize: "64px 64px",
+            }}
+          />
+        </div>
+
+        <div className="relative mx-auto max-w-6xl text-center">
+          {/* Badge */}
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-xs font-medium text-violet-300 sm:text-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-400" />
+            </span>
+            Built for students & ambitious job seekers
           </div>
 
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.15]">
-            Personalized Bulk Email Campaigns Powered by{" "}
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-400 via-purple-300 to-indigo-400">
-              Google Gmail API
+          {/* Headline */}
+          <h1 className="mx-auto max-w-5xl text-5xl font-extrabold leading-[1.05] tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl">
+            Your next opportunity
+            <br />
+            <span className="bg-gradient-to-r from-violet-300 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+              starts with an email.
             </span>
           </h1>
 
-          <p className="mt-6 text-lg sm:text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-            Dootx is an enterprise email dispatch platform developed by{" "}
-            <strong>Niraj Pujari</strong>. It connects directly to your verified
-            Google account via OAuth 2.0 to deliver personalized,
-            high-inbox-rate emails to your target audience.
+          {/* Description */}
+          <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
+            Reach founders, recruiters, and hiring managers directly. Build
+            personalized cold-email campaigns and contact the right people
+            without sending every email manually.
           </p>
 
-          {/* Action CTA Group */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* CTA */}
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href={user ? "/dashboard" : "/signup"}>
               <Button
                 size="lg"
-                className="w-full sm:w-auto px-8 py-6 text-base bg-violet-600 hover:bg-violet-500 text-white font-bold cursor-pointer shadow-xl shadow-violet-600/30"
+                className="w-full cursor-pointer bg-violet-600 px-8 py-6 text-base font-semibold text-white shadow-xl shadow-violet-600/20 transition-all hover:bg-violet-500 hover:shadow-violet-500/30 sm:w-auto"
               >
-                {user ? "Launch Dashboard" : "Start Sending Free"}
+                {user ? "Launch Dashboard" : "Start Outreach Free"}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -68,421 +85,98 @@ export default function Home() {
             <Link href="/privacy">
               <Button
                 size="lg"
-                variant="outline"
-                className="w-full sm:w-auto px-8 py-6 text-base border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 cursor-pointer"
+                variant="ghost"
+                className="w-full cursor-pointer px-6 py-6 text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 sm:w-auto"
               >
-                <Lock className="mr-2 h-4 w-4 text-violet-400" />
-                Read Privacy Policy
+                <Lock className="mr-2 h-4 w-4 text-zinc-500" />
+                Your data stays yours
               </Button>
             </Link>
           </div>
-        </section>
 
-        {/* SECTION 1: WHAT DOOTX IS */}
-        <section className="py-16 bg-zinc-900/30 border-y border-zinc-900">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider">
-                <Target className="h-3.5 w-3.5" /> What Is Dootx?
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                Authentic Gmail Dispatch Engine Built for High Deliverability
-              </h2>
-              <p className="text-zinc-400 text-base leading-relaxed">
-                Unlike traditional bulk mailing tools that route messages
-                through shared third-party SMTP servers with low IP reputation,{" "}
-                <strong>Dootx</strong> links directly to your authorized Google
-                account. Every campaign is generated as an RFC2822 MIME message
-                and sent via official Google Gmail API v1 endpoints
-                (`https://gmail.googleapis.com/gmail/v1/users/me/messages/send`)—ensuring
-                your emails land straight in primary inboxes.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-                <div className="h-10 w-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
-                  <Cpu className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-bold text-white">
-                  Direct Gmail API v1
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Sends base64url RFC2822 MIME messages directly using official
-                  Google API endpoints under explicit user consent.
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                  <Lock className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-bold text-white">
-                  AES-256 Token Encryption
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Google OAuth Refresh Tokens are stored encrypted with
-                  AES-256-CBC. Access tokens are ephemerally generated on demand
-                  and never saved permanently.
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-                <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                  <ShieldCheck className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-bold text-white">
-                  Quota Protection Shield
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Monitors daily email limits (500 emails/day) with automatic
-                  UTC date resets to protect your Google account reputation.
-                </p>
-              </div>
-            </div>
+          {/* Trust / product context */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-zinc-600 sm:text-sm">
+            <span>Personalized outreach</span>
+            <span className="hidden h-1 w-1 rounded-full bg-zinc-700 sm:block" />
+            <span>Send from your Gmail</span>
+            <span className="hidden h-1 w-1 rounded-full bg-zinc-700 sm:block" />
+            <span>Built for opportunity seekers</span>
           </div>
-        </section>
+        </div>
+      </section>
+      <Hero3DVisual />
+      <ProblemSection />
+      <HowItWorks />
+      <ProductShowcase />
+      <UseCases />
+      <WhyColdEmail />
+      <GoogleCompliance />
+      <section className="py-10 space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            Explore Dootx Platform Pages
+          </h2>
+          <p className="text-zinc-400 text-sm">
+            All informational and legal pages are publicly accessible without
+            requiring an account or login.
+          </p>
+        </div>
 
-        {/* SECTION 2: WHAT DOOTX DOES (FULL APP FUNCTIONALITY STEP-BY-STEP) */}
-        <section className="py-20 max-w-7xl mx-auto px-6 space-y-16">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider">
-              <Zap className="h-3.5 w-3.5" /> App Functionality Walkthrough
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              How Dootx Works (Step-by-Step)
-            </h2>
-            <p className="text-zinc-400 text-base leading-relaxed">
-              Dootx provides an intuitive 4-step workflow to turn contact lists
-              into personalized, high-converting email broadcasts.
-            </p>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          <Link
+            href="/about"
+            className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all text-center group"
+          >
+            <Info className="h-6 w-6 text-violet-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-bold text-white block">
+              About Dootx
+            </span>
+            <span className="text-[11px] text-zinc-500">
+              Developer & Tech Stack
+            </span>
+          </Link>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Step 1 */}
-            <div className="p-7 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4 hover:border-violet-500/40 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-violet-500/10 border border-violet-500/20 rounded-xl text-violet-400 font-extrabold font-mono text-sm">
-                  01
-                </div>
-                <h3 className="text-xl font-bold text-white">
-                  Connect Google OAuth 2.0 Account
-                </h3>
-              </div>
-              <p className="text-sm text-zinc-400 leading-relaxed">
-                Connect your Gmail account in 1 click via secure Google OAuth
-                2.0. Dootx requests explicit user consent for the{" "}
-                <code className="text-violet-300 font-mono text-xs bg-violet-950/60 px-1 py-0.5 rounded">
-                  gmail.send
-                </code>{" "}
-                scope to transmit campaigns from your domain.
-              </p>
-            </div>
+          <Link
+            href="/contact"
+            className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all text-center group"
+          >
+            <MessageSquare className="h-6 w-6 text-violet-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-bold text-white block">
+              Contact Support
+            </span>
+            <span className="text-[11px] text-zinc-500">
+              nirajrokx99@gmail.com
+            </span>
+          </Link>
 
-            {/* Step 2 */}
-            <div className="p-7 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4 hover:border-violet-500/40 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 font-extrabold font-mono text-sm">
-                  02
-                </div>
-                <h3 className="text-xl font-bold text-white">
-                  Recipient Grid & Dynamic Variables
-                </h3>
-              </div>
-              <p className="text-sm text-zinc-400 leading-relaxed">
-                Upload CSV spreadsheets or manage recipient data inside an
-                interactive grid. Add unlimited custom variables such as{" "}
-                <code className="text-blue-300 font-mono text-xs bg-blue-950/60 px-1 py-0.5 rounded">{`{{name}}`}</code>
-                ,{" "}
-                <code className="text-blue-300 font-mono text-xs bg-blue-950/60 px-1 py-0.5 rounded">{`{{company}}`}</code>
-                , or{" "}
-                <code className="text-blue-300 font-mono text-xs bg-blue-950/60 px-1 py-0.5 rounded">{`{{position}}`}</code>
-                .
-              </p>
-            </div>
+          <Link
+            href="/privacy"
+            className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all text-center group"
+          >
+            <Lock className="h-6 w-6 text-emerald-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-bold text-white block">
+              Privacy Policy
+            </span>
+            <span className="text-[11px] text-zinc-500">
+              Google OAuth & Limited Use
+            </span>
+          </Link>
 
-            {/* Step 3 */}
-            <div className="p-7 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4 hover:border-violet-500/40 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 font-extrabold font-mono text-sm">
-                  03
-                </div>
-                <h3 className="text-xl font-bold text-white">
-                  Composer & Live Recipient Preview
-                </h3>
-              </div>
-              <p className="text-sm text-zinc-400 leading-relaxed">
-                Compose templates with clickable tag insertion chips. Open the
-                Live Preview modal to inspect rendered subject lines and email
-                body text for any individual recipient prior to dispatching.
-              </p>
-            </div>
-
-            {/* Step 4 */}
-            <div className="p-7 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4 hover:border-violet-500/40 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 font-extrabold font-mono text-sm">
-                  04
-                </div>
-                <h3 className="text-xl font-bold text-white">
-                  Gmail API Dispatch & Live Telemetry
-                </h3>
-              </div>
-              <p className="text-sm text-zinc-400 leading-relaxed">
-                Launch your campaign into a non-blocking background queue.
-                Monitor real-time status line-by-line, daily quota usage, and
-                individual message delivery IDs.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 3: GOOGLE OAUTH DATA & SCOPE TRANSPARENCY (CRITICAL FOR OAUTH VERIFICATION) */}
-        <section className="py-16 bg-zinc-900/40 border-y border-zinc-900">
-          <div className="max-w-5xl mx-auto px-6 space-y-8">
-            <div className="text-center space-y-3">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold uppercase tracking-wider">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" /> Google
-                OAuth Transparency & Compliance
-              </div>
-              <h2 className="text-3xl font-extrabold text-white tracking-tight">
-                Why Dootx Requests Google Account Data
-              </h2>
-              <p className="text-zinc-400 text-sm max-w-2xl mx-auto">
-                We believe in 100% transparency regarding why our application
-                requests Google OAuth access and how user data is handled.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-violet-950/20 border border-violet-500/30 text-violet-200 space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-2 border-b border-violet-500/20 pb-3">
-                <span className="font-bold text-white text-base">
-                  Google API Limited Use Disclosure
-                </span>
-                <Link
-                  href="/privacy"
-                  className="text-xs text-violet-300 hover:text-white underline flex items-center gap-1 font-mono"
-                >
-                  View Full Privacy Policy <ExternalLink className="h-3 w-3" />
-                </Link>
-              </div>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                Dootx&apos;s use and transfer of information received from
-                Google APIs to any other app will adhere to the{" "}
-                <a
-                  href="https://developers.google.com/terms/api-services-user-data-policy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-violet-400 underline hover:text-violet-300 font-semibold"
-                >
-                  Google API Services User Data Policy
-                </a>
-                , including the <strong>Limited Use</strong> requirements. We do
-                NOT sell, rent, or share user data, nor do we use Google user
-                data to train AI/ML models.
-              </p>
-            </div>
-
-            {/* Scope Breakdown Grid */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
-                <div className="flex items-center gap-2 font-mono text-xs font-bold text-violet-400">
-                  <Mail className="h-4 w-4" />{" "}
-                  https://www.googleapis.com/auth/gmail.send
-                </div>
-                <h4 className="text-sm font-bold text-white">
-                  Gmail Send Authorization
-                </h4>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Used exclusively to transmit user-composed email templates to
-                  your specified campaign recipients via Google Gmail API v1 on
-                  your behalf.
-                </p>
-              </div>
-
-              <div className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
-                <div className="flex items-center gap-2 font-mono text-xs font-bold text-blue-400">
-                  <UserCheck className="h-4 w-4" /> openid, email, profile
-                </div>
-                <h4 className="text-sm font-bold text-white">
-                  Identity & Profile Verification
-                </h4>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Used to authenticate user login sessions and display your
-                  connected Google email address (`googleEmail`) in the
-                  dashboard composer.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 4: WHO DOOTX IS FOR */}
-        <section className="py-20 max-w-7xl mx-auto px-6 space-y-16">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider">
-              <Users className="h-3.5 w-3.5" /> Who Dootx Is For
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Built for Teams & Professionals Who Value Deliverability
-            </h2>
-            <p className="text-zinc-400 text-base leading-relaxed">
-              Whether pitching investors, connecting with sales prospects, or
-              updating subscribers, Dootx empowers high-impact communicators.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
-                <Rocket className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-bold text-white">
-                Founders & Builders
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Pitch investors, announce product updates, and onboard early
-                beta users directly from your verified domain address.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-                <Briefcase className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-bold text-white">
-                Sales & Outreach Teams
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Send tailored cold emails with custom variables (
-                <code className="text-indigo-300 font-mono">{`{{company}}`}</code>
-                ,{" "}
-                <code className="text-indigo-300 font-mono">{`{{position}}`}</code>
-                ) with high response rates.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                <Megaphone className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-bold text-white">
-                Marketers & Creators
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Distribute newsletters, course announcements, and community
-                updates effortlessly without complex server configs.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                <Users className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-bold text-white">
-                Agencies & Consultants
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Execute client email outreach campaigns safely using
-                authenticated Google accounts and daily quota tracking.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 5: PUBLIC DIRECT ACCESS NAVIGATION GRID (NO LOGIN REQUIRED) */}
-        <section className="py-16 bg-zinc-900/30 border-t border-zinc-900">
-          <div className="max-w-7xl mx-auto px-6 space-y-10">
-            <div className="text-center space-y-3">
-              <h2 className="text-2xl font-bold text-white tracking-tight">
-                Explore All Dootx Platform & Compliance Pages
-              </h2>
-              <p className="text-zinc-400 text-sm">
-                All informational and legal pages are publicly accessible
-                without requiring an account or login.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
-              <Link
-                href="/about"
-                className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all text-center group"
-              >
-                <Info className="h-6 w-6 text-violet-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-bold text-white block">
-                  About Dootx
-                </span>
-                <span className="text-[11px] text-zinc-500">
-                  Developer & Tech Stack
-                </span>
-              </Link>
-
-              <Link
-                href="/contact"
-                className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all text-center group"
-              >
-                <MessageSquare className="h-6 w-6 text-violet-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-bold text-white block">
-                  Contact Support
-                </span>
-                <span className="text-[11px] text-zinc-500">
-                  nirajrokx99@gmail.com
-                </span>
-              </Link>
-
-              <Link
-                href="/privacy"
-                className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all text-center group"
-              >
-                <Lock className="h-6 w-6 text-emerald-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-bold text-white block">
-                  Privacy Policy
-                </span>
-                <span className="text-[11px] text-zinc-500">
-                  Google OAuth & Limited Use
-                </span>
-              </Link>
-
-              <Link
-                href="/terms"
-                className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all text-center group"
-              >
-                <FileText className="h-6 w-6 text-blue-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-bold text-white block">
-                  Terms of Service
-                </span>
-                <span className="text-[11px] text-zinc-500">
-                  Usage & Anti-Spam Rules
-                </span>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* BOTTOM CALL TO ACTION */}
-        <section className="py-20 max-w-5xl mx-auto px-6 text-center">
-          <div className="p-10 rounded-3xl bg-linear-to-b from-violet-950/40 to-zinc-950 border border-violet-500/30 space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Ready to Upgrade Your Email Campaign Outreach?
-            </h2>
-            <p className="text-zinc-400 text-sm sm:text-base max-w-xl mx-auto">
-              Sign up for Dootx today, connect your Google account in 1 click,
-              and start dispatching personalized bulk campaigns.
-            </p>
-            <div className="pt-2 flex justify-center">
-              <Link href={user ? "/dashboard" : "/signup"}>
-                <Button
-                  size="lg"
-                  className="px-8 py-6 text-base bg-violet-600 hover:bg-violet-500 text-white font-bold cursor-pointer shadow-xl shadow-violet-600/30"
-                >
-                  {user ? "Go to Dashboard" : "Create Free Account"}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
+          <Link
+            href="/terms"
+            className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-violet-500/50 transition-all text-center group"
+          >
+            <FileText className="h-6 w-6 text-blue-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-bold text-white block">
+              Terms of Service
+            </span>
+            <span className="text-[11px] text-zinc-500">
+              Usage & Anti-Spam Rules
+            </span>
+          </Link>
+        </div>
+      </section>
+      <FinalCTA />
+    </main>
   );
 }
